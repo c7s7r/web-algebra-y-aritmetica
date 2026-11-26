@@ -1,0 +1,2602 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laboratorio Interactivo de Álgebra y Geometría — Proyecto Aula</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FDFBF7',
+            sage: { light: '#E6F4EC', pastel: '#A8D5BA', dark: '#3D7A5A' },
+            lavender: { light: '#F2ECFF', pastel: '#D8C7FF', dark: '#5E43A6' },
+            peach: { light: '#FFF1E8', pastel: '#FFD8BE', dark: '#B85D28' },
+            sky: { light: '#EBF5FF', pastel: '#C7E3FF', dark: '#2B6CB0' },
+            charcoal: '#2D3748',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FDFBF7;
+      color: #2D3748;
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Custom Pastel Range Sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 22px;
+      width: 22px;
+      border-radius: 50%;
+      background: #3D7A5A;
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 2px 6px rgba(45, 55, 72, 0.25);
+      cursor: pointer;
+      margin-top: -7px;
+      transition: transform 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.12);
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 8px;
+      cursor: pointer;
+      background: #E2E8F0;
+      border-radius: 999px;
+    }
+    .slider-lavender::-webkit-slider-thumb { background: #5E43A6; }
+    .slider-peach::-webkit-slider-thumb { background: #B85D28; }
+    .slider-sky::-webkit-slider-thumb { background: #2B6CB0; }
+
+    /* Smooth animations */
+    .fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .badge-pop {
+      animation: badgePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes badgePop {
+      0% { transform: scale(0.7); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* Hide scrollbar for horizontal nav on mobile */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Spotlight highlight for interactive guided tour */
+    .tour-highlight {
+      position: relative;
+      z-index: 60 !important;
+      box-shadow: 0 0 0 4px #5E43A6, 0 0 0 9999px rgba(30, 41, 59, 0.45);
+      border-radius: 1rem;
+      background-color: #FFFFFF;
+      transition: box-shadow 0.3s ease;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-lavender-pastel selection:text-charcoal">
+
+  <!-- Welcome Choice Modal (First Visit Only) -->
+  <div id="welcome-modal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-xl border border-lavender-pastel space-y-6 fade-in">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-sage-pastel to-lavender-pastel flex items-center justify-center text-charcoal shrink-0 border border-white shadow-xs">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-sage-light text-sage-dark">Primera Visita • Proyecto Aula</span>
+          <h2 class="text-xl sm:text-2xl font-extrabold text-charcoal mt-0.5">Bienvenido al Laboratorio</h2>
+        </div>
+      </div>
+
+      <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+        Esta plataforma didáctica te permite explorar <strong>5 problemas de álgebra y geometría</strong> mediante simuladores visuales, resolución guiada paso a paso, generadores de práctica y retos interactivos.
+      </p>
+
+      <div class="bg-cream p-4 rounded-2xl border border-stone-200 text-xs text-slate-600 space-y-1.5">
+        <p class="font-bold text-charcoal">¿Cómo deseas comenzar?</p>
+        <p>Puedes realizar un breve recorrido interactivo de 5 pasos para conocer cada herramienta o entrar directamente a explorar por tu cuenta.</p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 pt-1">
+        <button onclick="startGuidedTour()" class="flex-1 py-3 px-5 rounded-2xl bg-lavender-dark hover:opacity-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2">
+          <span>Iniciar recorrido guiado</span>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <button onclick="dismissWelcomeModal()" class="py-3 px-5 rounded-2xl bg-stone-100 hover:bg-stone-200 text-charcoal font-bold text-sm transition-all cursor-pointer">
+          Omitir y explorar libremente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive 5-Step Guided Tour Card -->
+  <div id="tour-overlay" class="hidden fixed inset-0 z-50 pointer-events-none flex items-end sm:items-center justify-center p-4 sm:p-6">
+    <div id="tour-card" class="pointer-events-auto bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-lavender-dark space-y-4 fade-in">
+      <div class="flex items-center justify-between">
+        <span id="tour-step-badge" class="px-3 py-1 rounded-full bg-lavender-light text-lavender-dark text-xs font-extrabold uppercase tracking-wider">Paso 1 de 5</span>
+        <button onclick="endGuidedTour()" class="text-xs font-bold text-slate-400 hover:text-charcoal transition-colors cursor-pointer">Cerrar guía</button>
+      </div>
+
+      <!-- Step Progress Bar -->
+      <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+        <div id="tour-progress-fill" class="h-full bg-lavender-dark rounded-full transition-all duration-300" style="width: 20%"></div>
+      </div>
+
+      <div class="space-y-2">
+        <h3 id="tour-title" class="text-lg font-extrabold text-charcoal"></h3>
+        <p id="tour-desc" class="text-sm text-slate-600 leading-relaxed"></p>
+      </div>
+
+      <div id="tour-tip-box" class="p-3 rounded-xl bg-cream border border-stone-200 text-xs font-medium text-slate-700"></div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-stone-100">
+        <button onclick="prevTourStep()" id="tour-prev-btn" class="px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-charcoal font-bold text-xs transition-all cursor-pointer disabled:opacity-40 disabled:pointer-events-none">
+          Anterior
+        </button>
+        <div class="flex items-center gap-1.5" id="tour-dots"></div>
+        <button onclick="nextTourStep()" id="tour-next-btn" class="px-5 py-2 rounded-xl bg-lavender-dark hover:opacity-95 text-white font-bold text-xs transition-all cursor-pointer">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container (Replaces alert) -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+
+  <!-- Top Header & Gamification Bar -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-stone-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Brand Title -->
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-sage-pastel to-sky-pastel flex items-center justify-center text-charcoal shadow-sm border border-white">
+              <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-lavender-light text-lavender-dark">Proyecto Aula</span>
+                <span class="text-xs text-slate-500 hidden sm:inline">Álgebra y Geometría Aplicada</span>
+              </div>
+              <h1 class="text-lg sm:text-xl font-extrabold text-charcoal leading-tight">
+                Laboratorio Interactivo de Álgebra y Geometría
+              </h1>
+            </div>
+          </div>
+
+          <!-- Mobile Help Button -->
+          <button onclick="startGuidedTour()" class="md:hidden px-3 py-2 rounded-xl bg-lavender-light hover:bg-lavender-pastel text-lavender-dark font-bold text-xs flex items-center gap-1.5 border border-lavender-pastel transition-all cursor-pointer" title="Abrir guía de uso">
+            <span class="w-4 h-4 rounded-full bg-lavender-dark text-white flex items-center justify-center text-[10px] font-extrabold">?</span>
+            <span>Guía</span>
+          </button>
+        </div>
+
+        <!-- Progress, Gamification Stats & Desktop Guide Button -->
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <div id="tour-target-stats" class="flex flex-wrap items-center gap-3 sm:gap-4 bg-cream px-4 py-2 rounded-2xl border border-stone-200/80 flex-1 md:flex-initial">
+            <!-- Domain Points -->
+            <div class="flex items-center gap-2" title="Puntos de Dominio">
+              <span class="w-6 h-6 rounded-lg bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </span>
+              <div>
+                <p class="text-[11px] font-semibold text-slate-500 uppercase leading-none">Dominio</p>
+                <p class="text-sm font-bold text-charcoal"><span id="stat-points">0</span> pts</p>
+              </div>
+            </div>
+
+            <div class="h-6 w-px bg-stone-200"></div>
+
+            <!-- Typographic Medals -->
+            <div class="flex items-center gap-1" id="medals-bar" title="Insignias de dominio desbloqueadas">
+              <span id="medal-1" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 opacity-40 transition-all" title="Insignia 01: Cubo que crece">01</span>
+              <span id="medal-2" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 opacity-40 transition-all" title="Insignia 02: Caja sin tapa">02</span>
+              <span id="medal-3" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 opacity-40 transition-all" title="Insignia 03: Cisterna cilíndrica">03</span>
+              <span id="medal-4" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 opacity-40 transition-all" title="Insignia 04: Escalera contra la pared">04</span>
+              <span id="medal-5" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[11px] font-bold text-slate-600 opacity-40 transition-all" title="Insignia 05: Pirámide escalonada">05</span>
+              <span id="medal-6" class="w-7 h-7 rounded-full bg-stone-100 border border-stone-200 flex items-center justify-center font-mono text-[10px] font-extrabold text-slate-600 opacity-40 transition-all" title="Insignia Maestría: Arena de Práctica">PR</span>
+            </div>
+
+            <div class="h-6 w-px bg-stone-200 hidden sm:block"></div>
+
+            <!-- Global Progress Bar -->
+            <div class="flex-1 sm:w-36 min-w-[120px]">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-600 mb-1">
+                <span>Progreso Global</span>
+                <span id="stat-percent">0%</span>
+              </div>
+              <div class="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden">
+                <div id="global-progress-bar" class="h-full bg-gradient-to-r from-sage-dark via-sky-dark to-lavender-dark rounded-full transition-all duration-500" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Discreet Desktop On-Demand Tutorial Button -->
+          <button onclick="startGuidedTour()" id="header-guide-btn" class="hidden md:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-lavender-light/80 hover:bg-lavender-pastel text-lavender-dark font-bold text-xs border border-lavender-pastel transition-all cursor-pointer shrink-0" title="Abrir recorrido guiado">
+            <span class="w-5 h-5 rounded-full bg-lavender-dark text-white flex items-center justify-center font-mono text-xs font-extrabold">?</span>
+            <span>Guía de uso</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Module Navigation Tabs -->
+      <nav id="tour-target-nav" class="mt-3 flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" aria-label="Módulos del laboratorio">
+        <button onclick="switchModule(1)" id="nav-btn-1" class="nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border">
+          <span class="font-mono text-xs opacity-75">01</span>
+          <span>Cubo que crece</span>
+        </button>
+        <button onclick="switchModule(2)" id="nav-btn-2" class="nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border">
+          <span class="font-mono text-xs opacity-75">02</span>
+          <span>Caja sin tapa</span>
+        </button>
+        <button onclick="switchModule(3)" id="nav-btn-3" class="nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border">
+          <span class="font-mono text-xs opacity-75">03</span>
+          <span>Cisterna cilíndrica</span>
+        </button>
+        <button onclick="switchModule(4)" id="nav-btn-4" class="nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border">
+          <span class="font-mono text-xs opacity-75">04</span>
+          <span>Escalera contra la pared</span>
+        </button>
+        <button onclick="switchModule(5)" id="nav-btn-5" class="nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border">
+          <span class="font-mono text-xs opacity-75">05</span>
+          <span>Pirámide de bloques</span>
+        </button>
+        <button onclick="switchModule(6)" id="nav-btn-6" class="nav-pill shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Arena de Práctica</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- =================================================================== -->
+    <!-- MODULE 1: CUBO QUE CRECE                                            -->
+    <!-- =================================================================== -->
+    <section id="module-1" class="module-section fade-in space-y-6">
+      <!-- Problem Statement Banner -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-sage-pastel/70 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-sage-light rounded-bl-full -z-0 opacity-70"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sage-light text-sage-dark text-xs font-bold">
+              <span>Problema 01 • Ecuaciones Cúbicas y Cuadráticas</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">1. Cubo que crece</h2>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+              Un cubo de arista <strong class="text-sage-dark font-bold">x cm</strong> aumenta su arista en <strong class="text-sage-dark font-bold">2 cm</strong> y su volumen crece <strong class="text-sage-dark font-bold">218 cm³</strong>. ¿Cuánto medía la arista original?
+            </p>
+          </div>
+          <div class="bg-cream p-4 rounded-2xl border border-stone-200 shrink-0">
+            <p class="text-xs font-bold text-slate-500 uppercase mb-1">Modelo Algebraico</p>
+            <p class="font-mono text-base font-bold text-sage-dark">(x + 2)³ − x³ = 218</p>
+            <p class="text-xs text-slate-500 mt-1">Vértices − Aristas + Caras = 2</p>
+          </div>
+        </div>
+
+        <!-- Sub-navigation Tabs -->
+        <div id="tour-target-subtabs" class="mt-6 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
+          <button onclick="switchSubTab(1, 'A')" id="subbtn-1-A" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">A. Laboratorio Visual</button>
+          <button onclick="switchSubTab(1, 'B')" id="subbtn-1-B" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">B. Paso a Paso Guiado</button>
+          <button onclick="switchSubTab(1, 'C')" id="subbtn-1-C" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">C. Practica con Otros Valores</button>
+        </div>
+      </div>
+
+      <!-- TAB 1A: Visual Lab -->
+      <div id="subtab-1-A" class="subtab-panel-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Interactive Controls -->
+        <div id="tour-target-lab-controls" class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col justify-between space-y-6">
+          <div class="space-y-5">
+            <h3 class="text-lg font-bold text-charcoal flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-sage-light text-sage-dark flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+              </span>
+              Controles de Simulación
+            </h3>
+            <p class="text-sm text-slate-600">
+              Desliza la arista original <code class="bg-stone-100 px-1.5 py-0.5 rounded font-bold">x</code> hasta observar en qué punto la diferencia de volumen <code class="bg-stone-100 px-1.5 py-0.5 rounded font-bold">ΔV</code> alcanza exactamente <strong>218 cm³</strong>.
+            </p>
+
+            <!-- Slider x -->
+            <div class="bg-cream p-4 rounded-2xl border border-stone-200/80 space-y-2">
+              <div class="flex justify-between items-center">
+                <label for="m1-slider-x" class="text-sm font-bold text-charcoal">Arista original (x):</label>
+                <span id="m1-val-x" class="px-3 py-1 rounded-lg bg-sage-light text-sage-dark font-mono font-bold text-sm">3.0 cm</span>
+              </div>
+              <input type="range" id="m1-slider-x" min="1" max="10" step="0.5" value="3" oninput="updateCubeLab()">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>1 cm</span>
+                <span>5 cm (Objetivo)</span>
+                <span>10 cm</span>
+              </div>
+            </div>
+
+            <!-- Slider dx -->
+            <div class="bg-cream p-4 rounded-2xl border border-stone-200/80 space-y-2">
+              <div class="flex justify-between items-center">
+                <label for="m1-slider-dx" class="text-sm font-bold text-charcoal">Incremento de arista (Δx):</label>
+                <span id="m1-val-dx" class="px-3 py-1 rounded-lg bg-sky-light text-sky-dark font-mono font-bold text-sm">+2.0 cm</span>
+              </div>
+              <input type="range" id="m1-slider-dx" class="slider-sky" min="1" max="5" step="0.5" value="2" oninput="updateCubeLab()">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>+1 cm</span>
+                <span>+2 cm (Problema)</span>
+                <span>+5 cm</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Real-Time Calculations -->
+          <div id="m1-feedback-box" class="p-4 rounded-2xl bg-sage-light/60 border border-sage-pastel space-y-2 transition-all">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">V_original = x³</p>
+                <p id="m1-v-orig" class="text-base font-extrabold text-charcoal font-mono">27 cm³</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">V_nuevo = (x+Δx)³</p>
+                <p id="m1-v-new" class="text-base font-extrabold text-sky-dark font-mono">125 cm³</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Crecimiento ΔV</p>
+                <p id="m1-dv" class="text-base font-extrabold text-sage-dark font-mono">98 cm³</p>
+              </div>
+            </div>
+            <p id="m1-status-msg" class="text-xs font-medium text-slate-700 text-center pt-1">
+              Sigue ajustando x para buscar ΔV = 218 cm³ con Δx = 2 cm.
+            </p>
+          </div>
+        </div>
+
+        <!-- Isometric SVG Visualizer -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col items-center justify-center">
+          <div class="w-full flex justify-between items-center mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Proyección Isométrica Comparativa</span>
+            <div class="flex items-center gap-3 text-xs font-semibold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-sage-pastel inline-block border border-sage-dark"></span> Cubo Original (x)</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-sm bg-sky-pastel/50 inline-block border border-sky-dark border-dashed"></span> Cubo Expandido (x+Δx)</span>
+            </div>
+          </div>
+          <svg id="m1-svg" viewBox="0 0 460 340" class="w-full max-w-lg h-auto select-none">
+            <!-- Grid subtle background -->
+            <defs>
+              <pattern id="smallGrid1" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#F1F5F9" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="460" height="340" fill="url(#smallGrid1)" rx="16"/>
+            <g id="m1-cubes-group" transform="translate(230, 290)"></g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TAB 1B: Step by Step Guided -->
+      <div id="subtab-1-B" class="subtab-panel-1 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Desarrollo Algebraico Paso a Paso</h3>
+            <p class="text-sm text-slate-600">Completa los coeficientes faltantes para resolver la ecuación cúbica.</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-sage-light text-sage-dark self-start">Recompensa: +30 pts</span>
+        </div>
+
+        <div class="space-y-4 max-w-3xl">
+          <!-- Step 1 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sage-dark uppercase">Paso 1: Planteamiento y Binomio al Cubo</span>
+            <p class="text-sm text-slate-700">Desarrollamos <code class="font-mono font-bold">(x + 2)³ − x³ = 218</code> recordando que <code class="font-mono">(a+b)³ = a³ + 3a²b + 3ab² + b³</code>:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm sm:text-base bg-white p-3 rounded-xl border border-stone-200">
+              <span>x³ +</span>
+              <input type="number" id="m1-step-1a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none focus:border-sage-dark">
+              <span>x² +</span>
+              <input type="number" id="m1-step-1b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none focus:border-sage-dark">
+              <span>x + 8 − x³ = 218</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sage-dark uppercase">Paso 2: Cancelación de x³ y Simplificación</span>
+            <p class="text-sm text-slate-700">Al cancelar <code class="font-mono">x³ − x³</code> y pasar el 218 restando (<code class="font-mono">8 − 218 = −210</code>), dividimos toda la ecuación entre <strong>6</strong>:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm sm:text-base bg-white p-3 rounded-xl border border-stone-200">
+              <span>6x² + 12x − 210 = 0  ⟹  x² +</span>
+              <input type="number" id="m1-step-2a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none focus:border-sage-dark">
+              <span>x −</span>
+              <input type="number" id="m1-step-2b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none focus:border-sage-dark">
+              <span>= 0</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sage-dark uppercase">Paso 3: Factorización e Interpretación Física</span>
+            <p class="text-sm text-slate-700">Buscamos dos números que multiplicados den −35 y sumados den +2: <code class="font-mono font-bold">(x + 7)(x − 5) = 0</code>.</p>
+            <div class="flex flex-wrap items-center gap-3 text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span class="font-semibold">Arista válida x =</span>
+              <input type="number" id="m1-step-3a" placeholder="?" class="w-20 px-2 py-1 text-center font-mono font-bold border-2 border-sage-pastel rounded-lg focus:outline-none focus:border-sage-dark">
+              <span class="font-semibold">cm. ¿Por qué descartamos x = −7?</span>
+              <select id="m1-step-3b" class="px-3 py-1.5 rounded-lg border-2 border-sage-pastel bg-cream font-medium text-charcoal focus:outline-none">
+                <option value="">Selecciona una razón...</option>
+                <option value="neg">Una longitud geométrica no puede ser negativa</option>
+                <option value="par">Porque 7 es un número impar</option>
+                <option value="vol">Porque el volumen sería mayor a 1000</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkModule1Steps()" class="px-6 py-3 rounded-2xl bg-sage-dark hover:bg-emerald-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+              Verificar Procedimiento
+            </button>
+            <button onclick="fillModule1Hint()" class="px-4 py-3 rounded-2xl bg-sage-light hover:bg-sage-pastel/60 text-sage-dark font-semibold text-sm transition-all cursor-pointer">
+              Ver Pista
+            </button>
+          </div>
+          <div id="m1-steps-result" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+        </div>
+      </div>
+
+      <!-- TAB 1C: Practice Generator -->
+      <div id="subtab-1-C" class="subtab-panel-1 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Generador de Ejercicios: Cubo que Crece</h3>
+            <p class="text-sm text-slate-600">Resuelve nuevos retos con valores aleatorios para dominar el planteamiento.</p>
+          </div>
+          <button onclick="generateM1Practice()" class="px-4 py-2.5 rounded-xl bg-sage-light hover:bg-sage-pastel text-sage-dark font-bold text-sm transition-all cursor-pointer self-start">
+            Nuevo Problema
+          </button>
+        </div>
+
+        <div class="max-w-2xl bg-cream p-6 rounded-2xl border border-stone-200 space-y-4">
+          <p id="m1-prac-prompt" class="text-base sm:text-lg text-charcoal font-medium leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs font-mono text-slate-600" id="m1-prac-hint"></div>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <label class="text-sm font-bold text-charcoal">Tu respuesta (x en cm):</label>
+            <input type="number" id="m1-prac-input" placeholder="Ej. 4" class="w-28 px-3 py-2 rounded-xl border-2 border-sage-pastel font-mono font-bold text-center focus:outline-none focus:border-sage-dark">
+            <button onclick="checkM1Practice()" class="px-5 py-2.5 rounded-xl bg-sage-dark text-white font-bold text-sm hover:opacity-95 transition-all cursor-pointer">
+              Comprobar
+            </button>
+          </div>
+          <div id="m1-prac-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 2: CAJA SIN TAPA                                             -->
+    <!-- =================================================================== -->
+    <section id="module-2" class="module-section hidden fade-in space-y-6">
+      <!-- Problem Statement Banner -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-lavender-pastel/80 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-lavender-light rounded-bl-full -z-0 opacity-70"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-lavender-light text-lavender-dark text-xs font-bold">
+              <span>Problema 02 • Polinomios de Grado 3 y Dominio Geométrico</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">2. Caja sin tapa</h2>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+              De una lámina cuadrada de <strong class="text-lavender-dark font-bold">20 cm</strong> de lado se cortan cuadrados de lado <strong class="text-lavender-dark font-bold">x</strong> en las esquinas y se dobla para formar una caja de <strong class="text-lavender-dark font-bold">576 cm³</strong>. Encuentra <strong class="text-lavender-dark font-bold">x</strong>.
+            </p>
+          </div>
+          <div class="bg-cream p-4 rounded-2xl border border-stone-200 shrink-0">
+            <p class="text-xs font-bold text-slate-500 uppercase mb-1">Volumen de la Caja</p>
+            <p class="font-mono text-base font-bold text-lavender-dark">x(20 − 2x)² = 576</p>
+            <p class="text-xs text-slate-500 mt-1">Restricción física: 0 &lt; x &lt; 10</p>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
+          <button onclick="switchSubTab(2, 'A')" id="subbtn-2-A" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">A. Laboratorio Visual</button>
+          <button onclick="switchSubTab(2, 'B')" id="subbtn-2-B" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">B. Paso a Paso Guiado</button>
+          <button onclick="switchSubTab(2, 'C')" id="subbtn-2-C" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">C. Practica con Otros Valores</button>
+        </div>
+      </div>
+
+      <!-- TAB 2A: Visual Lab -->
+      <div id="subtab-2-A" class="subtab-panel-2 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-charcoal flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-lavender-light text-lavender-dark flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
+              </span>
+              Corte de Esquinas
+            </h3>
+            <p class="text-sm text-slate-600">
+              Ajusta el tamaño del corte <code class="bg-stone-100 px-1.5 py-0.5 rounded font-bold">x</code>. Observa cómo la base mide <code class="font-mono font-bold">(20 − 2x)</code> y cómo existen <strong>dos soluciones válidas</strong> que logran <strong>576 cm³</strong> (<code class="font-mono">x = 4</code> y <code class="font-mono">x ≈ 2.71</code>).
+            </p>
+
+            <div class="bg-cream p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div class="flex justify-between items-center">
+                <label for="m2-slider-x" class="text-sm font-bold text-charcoal">Corte en esquinas (x):</label>
+                <span id="m2-val-x" class="px-3 py-1 rounded-lg bg-lavender-light text-lavender-dark font-mono font-bold text-sm">4.00 cm</span>
+              </div>
+              <input type="range" id="m2-slider-x" class="slider-lavender" min="0.5" max="9.5" step="0.01" value="4" oninput="updateBoxLab()">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>0.5 cm</span>
+                <span>2.71 cm</span>
+                <span>4.00 cm</span>
+                <span>9.5 cm</span>
+              </div>
+            </div>
+
+            <!-- Quick jump buttons to roots -->
+            <div class="flex flex-wrap gap-2">
+              <button onclick="setBoxX(2.71)" class="px-3 py-1.5 rounded-xl bg-lavender-light hover:bg-lavender-pastel text-lavender-dark text-xs font-bold transition-all cursor-pointer">
+                Ir a x ≈ 2.71 cm
+              </button>
+              <button onclick="setBoxX(4.00)" class="px-3 py-1.5 rounded-xl bg-lavender-light hover:bg-lavender-pastel text-lavender-dark text-xs font-bold transition-all cursor-pointer">
+                Ir a x = 4.00 cm
+              </button>
+            </div>
+          </div>
+
+          <!-- Dynamic Metrics -->
+          <div class="p-4 rounded-2xl bg-lavender-light/50 border border-lavender-pastel space-y-2">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Base (20−2x)</p>
+                <p id="m2-base" class="text-sm font-extrabold text-charcoal font-mono">12.0 × 12.0</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Altura (x)</p>
+                <p id="m2-height" class="text-sm font-extrabold text-lavender-dark font-mono">4.00 cm</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Volumen V(x)</p>
+                <p id="m2-vol" class="text-sm font-extrabold text-emerald-700 font-mono">576.0 cm³</p>
+              </div>
+            </div>
+            <p id="m2-status" class="text-xs font-semibold text-center text-lavender-dark pt-1">
+              Exacto: con x = 4 cm la caja tiene 12 × 12 × 4 = 576 cm³.
+            </p>
+          </div>
+        </div>
+
+        <!-- Dual SVG: 2D Sheet & 3D Box -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">1. Plano 2D (Lámina 20×20 cm)</span>
+            <svg id="m2-svg-2d" viewBox="0 0 260 260" class="w-full max-w-[240px] h-auto"></svg>
+          </div>
+          <div class="flex flex-col items-center">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Caja Armada en 3D</span>
+            <svg id="m2-svg-3d" viewBox="0 0 260 260" class="w-full max-w-[240px] h-auto"></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2B: Step by Step Guided -->
+      <div id="subtab-2-B" class="subtab-panel-2 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">De Ecuación Cúbica a Fórmula General</h3>
+            <p class="text-sm text-slate-600">Encuentra todas las raíces del polinomio y filtra las físicamente posibles.</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-lavender-light text-lavender-dark self-start">Recompensa: +30 pts</span>
+        </div>
+
+        <div class="space-y-4 max-w-3xl">
+          <!-- Step 1 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-lavender-dark uppercase">Paso 1: Desarrollar la ecuación cúbica</span>
+            <p class="text-sm text-slate-700">Al expandir <code class="font-mono">x(20 − 2x)² = 576</code> y dividir entre 4 obtenemos:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>x³ −</span>
+              <input type="number" id="m2-step-1a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-lavender-pastel rounded-lg focus:outline-none">
+              <span>x² + 100x −</span>
+              <input type="number" id="m2-step-1b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-lavender-pastel rounded-lg focus:outline-none">
+              <span>= 0</span>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-lavender-dark uppercase">Paso 2: Factorizar con x = 4</span>
+            <p class="text-sm text-slate-700">Como <code class="font-mono">4³ − 20(4)² + 100(4) − 144 = 0</code>, dividimos entre <code class="font-mono">(x − 4)</code>:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>(x − 4)(x² −</span>
+              <input type="number" id="m2-step-2a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-lavender-pastel rounded-lg focus:outline-none">
+              <span>x +</span>
+              <input type="number" id="m2-step-2b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-lavender-pastel rounded-lg focus:outline-none">
+              <span>) = 0</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-lavender-dark uppercase">Paso 3: Fórmula General y Dominio (0 &lt; x &lt; 10)</span>
+            <p class="text-sm text-slate-700">Al aplicar la fórmula general a <code class="font-mono">x² − 16x + 36 = 0</code> se obtiene <code class="font-mono">x = 8 ± 2√7</code> (≈ 13.29 y ≈ 2.71).</p>
+            <div class="flex flex-wrap items-center gap-3 text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span class="font-semibold">Segunda solución válida (2 decimales):</span>
+              <input type="number" step="0.01" id="m2-step-3a" placeholder="?.??" class="w-24 px-2 py-1 text-center font-mono font-bold border-2 border-lavender-pastel rounded-lg focus:outline-none">
+              <span class="font-semibold">cm. ¿Por qué 13.29 no sirve?</span>
+              <select id="m2-step-3b" class="px-3 py-1.5 rounded-lg border-2 border-lavender-pastel bg-cream font-medium text-charcoal focus:outline-none">
+                <option value="">Selecciona...</option>
+                <option value="half">Supera los 10 cm (la mitad de la lámina de 20 cm)</option>
+                <option value="dec">Porque es un número decimal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkModule2Steps()" class="px-6 py-3 rounded-2xl bg-lavender-dark hover:opacity-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+              Verificar Procedimiento
+            </button>
+            <button onclick="fillModule2Hint()" class="px-4 py-3 rounded-2xl bg-lavender-light hover:bg-lavender-pastel/60 text-lavender-dark font-semibold text-sm transition-all cursor-pointer">
+              Ver Pista
+            </button>
+          </div>
+          <div id="m2-steps-result" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+        </div>
+      </div>
+
+      <!-- TAB 2C: Practice Generator -->
+      <div id="subtab-2-C" class="subtab-panel-2 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Generador de Ejercicios: Caja sin Tapa</h3>
+            <p class="text-sm text-slate-600">Calcula el corte entero válido para nuevas láminas cuadradas.</p>
+          </div>
+          <button onclick="generateM2Practice()" class="px-4 py-2.5 rounded-xl bg-lavender-light hover:bg-lavender-pastel text-lavender-dark font-bold text-sm transition-all cursor-pointer self-start">
+            Nuevo Problema
+          </button>
+        </div>
+
+        <div class="max-w-2xl bg-cream p-6 rounded-2xl border border-stone-200 space-y-4">
+          <p id="m2-prac-prompt" class="text-base sm:text-lg text-charcoal font-medium leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs font-mono text-slate-600" id="m2-prac-hint"></div>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <label class="text-sm font-bold text-charcoal">Valor entero de x (cm):</label>
+            <input type="number" id="m2-prac-input" placeholder="Ej. 3" class="w-28 px-3 py-2 rounded-xl border-2 border-lavender-pastel font-mono font-bold text-center focus:outline-none">
+            <button onclick="checkM2Practice()" class="px-5 py-2.5 rounded-xl bg-lavender-dark text-white font-bold text-sm hover:opacity-95 transition-all cursor-pointer">
+              Comprobar
+            </button>
+          </div>
+          <div id="m2-prac-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 3: CISTERNA CILÍNDRICA                                       -->
+    <!-- =================================================================== -->
+    <section id="module-3" class="module-section hidden fade-in space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-sky-pastel/80 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-sky-light rounded-bl-full -z-0 opacity-70"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-light text-sky-dark text-xs font-bold">
+              <span>Problema 03 • Geometría Espacial, Fracciones y Razón de Cambio</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">3. Cisterna cilíndrica</h2>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+              Una cisterna de radio <strong class="text-sky-dark font-bold">1.5 m</strong> y altura <strong class="text-sky-dark font-bold">4 m</strong> está llena a <strong class="text-sky-dark font-bold">3/5</strong> de su capacidad. Una bomba extrae <strong class="text-sky-dark font-bold">2.5 m³ por hora</strong>. ¿Cuántas horas tarda en vaciarla?
+            </p>
+          </div>
+          <div class="bg-cream p-4 rounded-2xl border border-stone-200 shrink-0">
+            <p class="text-xs font-bold text-slate-500 uppercase mb-1">Fórmulas Clave</p>
+            <p class="font-mono text-base font-bold text-sky-dark">V = π · r² · h</p>
+            <p class="text-xs text-slate-500 mt-1">Tiempo = Volumen ocupado ÷ Caudal</p>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
+          <button onclick="switchSubTab(3, 'A')" id="subbtn-3-A" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">A. Laboratorio Visual</button>
+          <button onclick="switchSubTab(3, 'B')" id="subbtn-3-B" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">B. Paso a Paso Guiado</button>
+          <button onclick="switchSubTab(3, 'C')" id="subbtn-3-C" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">C. Practica con Otros Valores</button>
+        </div>
+      </div>
+
+      <!-- TAB 3A: Visual Lab -->
+      <div id="subtab-3-A" class="subtab-panel-3 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-charcoal flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-sky-light text-sky-dark flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+              </span>
+              Simulador de Bombeo
+            </h3>
+            <p class="text-sm text-slate-600">
+              Inicia la bomba hidráulica para observar cómo disminuye el volumen de agua (inicialmente al <strong>60% = 3/5</strong>) a razón de <strong>2.5 m³/h</strong>.
+            </p>
+
+            <!-- Pump Controls -->
+            <div class="flex flex-wrap gap-3">
+              <button onclick="togglePump()" id="m3-pump-btn" class="flex-1 py-3 px-4 rounded-2xl bg-sky-dark hover:bg-blue-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2">
+                <span>Iniciar Bombeo</span>
+              </button>
+              <button onclick="resetPump()" class="py-3 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-charcoal font-bold text-sm transition-all cursor-pointer">
+                Reiniciar
+              </button>
+            </div>
+
+            <!-- Live Gauges -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div class="bg-cream p-3.5 rounded-2xl border border-stone-200">
+                <p class="text-xs text-slate-500 font-semibold">Tiempo Transcurrido</p>
+                <p id="m3-time-display" class="text-xl font-extrabold text-sky-dark font-mono mt-0.5">0.00 h</p>
+                <p id="m3-time-hm" class="text-[11px] text-slate-500">0 h 00 min</p>
+              </div>
+              <div class="bg-cream p-3.5 rounded-2xl border border-stone-200">
+                <p class="text-xs text-slate-500 font-semibold">Agua Restante</p>
+                <p id="m3-water-display" class="text-xl font-extrabold text-charcoal font-mono mt-0.5">16.96 m³</p>
+                <p id="m3-pct-display" class="text-[11px] text-slate-500">60.0% de 28.27 m³</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-sky-light/60 border border-sky-pastel text-xs text-slate-700 space-y-1">
+            <p><strong>Capacidad Total:</strong> V = π(1.5)²(4) = 9π ≈ 28.27 m³</p>
+            <p><strong>Volumen Inicial (3/5):</strong> (3/5)(9π) = 5.4π ≈ 16.96 m³</p>
+            <p><strong>Tiempo Total:</strong> 16.96 ÷ 2.5 ≈ <strong>6.79 h (6 h 47 min)</strong></p>
+          </div>
+        </div>
+
+        <!-- Animated Cylinder SVG -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col items-center justify-center">
+          <svg viewBox="0 0 420 330" class="w-full max-w-md h-auto">
+            <!-- Cylinder Back & Frame -->
+            <ellipse cx="190" cy="60" rx="90" ry="24" fill="#EBF5FF" stroke="#2B6CB0" stroke-width="2.5"/>
+            <rect x="100" y="60" width="180" height="210" fill="#F8FAFC" fill-opacity="0.5"/>
+            
+            <!-- Water Column (Dynamic height) -->
+            <g id="m3-water-group">
+              <rect id="m3-water-rect" x="100" y="144" width="180" height="126" fill="#93C5FD" fill-opacity="0.75"/>
+              <ellipse id="m3-water-top" cx="190" cy="144" rx="90" ry="24" fill="#60A5FA" stroke="#2B6CB0" stroke-width="1.5"/>
+            </g>
+
+            <!-- Cylinder Front Walls -->
+            <line x1="100" y1="60" x2="100" y2="270" stroke="#2B6CB0" stroke-width="2.5"/>
+            <line x1="280" y1="60" x2="280" y2="270" stroke="#2B6CB0" stroke-width="2.5"/>
+            <path d="M 100 270 A 90 24 0 0 0 280 270" fill="none" stroke="#2B6CB0" stroke-width="2.5"/>
+            <path d="M 100 270 A 90 24 0 0 1 280 270" fill="none" stroke="#2B6CB0" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+            <!-- Level Markers -->
+            <line x1="85" y1="144" x2="100" y2="144" stroke="#B85D28" stroke-width="2"/>
+            <text x="80" y="148" text-anchor="end" font-size="11" font-weight="bold" fill="#B85D28">3/5 (60%)</text>
+
+            <!-- Dimensions -->
+            <line x1="190" y1="60" x2="280" y2="60" stroke="#1E293B" stroke-width="1.5" stroke-dasharray="3,3"/>
+            <text x="235" y="52" text-anchor="middle" font-size="12" font-weight="bold" fill="#1E293B">r = 1.5 m</text>
+            
+            <line x1="300" y1="60" x2="300" y2="270" stroke="#1E293B" stroke-width="1.5"/>
+            <text x="310" y="170" font-size="12" font-weight="bold" fill="#1E293B">h = 4 m</text>
+
+            <!-- Pipe & Pump Icon -->
+            <path d="M 280 255 L 345 255 L 345 285" fill="none" stroke="#475569" stroke-width="6" stroke-linecap="round"/>
+            <rect x="325" y="238" width="40" height="32" rx="8" fill="#FFD8BE" stroke="#B85D28" stroke-width="2"/>
+            <text x="345" y="258" text-anchor="middle" font-size="10" font-weight="bold" fill="#B85D28">2.5m³/h</text>
+            <circle id="m3-water-drop" cx="345" cy="300" r="5" fill="#3B82F6" opacity="0"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TAB 3B: Step by Step Guided -->
+      <div id="subtab-3-B" class="subtab-panel-3 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Cálculo Secuencial en 3 Etapas</h3>
+            <p class="text-sm text-slate-600">Usa π ≈ 3.1416 para completar cada etapa del vaciado.</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-sky-light text-sky-dark self-start">Recompensa: +30 pts</span>
+        </div>
+
+        <div class="space-y-4 max-w-3xl">
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sky-dark uppercase">Etapa 1: Volumen total del cilindro</span>
+            <p class="text-sm text-slate-700"><code class="font-mono">V_total = π · (1.5)² · 4 = 9π</code>. ¿Cuál es el múltiplo de π?</p>
+            <div class="flex items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>V_total =</span>
+              <input type="number" id="m3-step-1" placeholder="?" class="w-20 px-2 py-1 text-center font-bold border-2 border-sky-pastel rounded-lg focus:outline-none">
+              <span>π m³  (≈ 28.27 m³)</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sky-dark uppercase">Etapa 2: Volumen ocupado (3/5 de capacidad)</span>
+            <p class="text-sm text-slate-700">Multiplicamos el volumen total por <code class="font-mono">3/5</code> (o 0.6):</p>
+            <div class="flex items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>V_agua = (3/5) · 9π =</span>
+              <input type="number" step="0.1" id="m3-step-2" placeholder="?.?" class="w-20 px-2 py-1 text-center font-bold border-2 border-sky-pastel rounded-lg focus:outline-none">
+              <span>π m³  (≈ 16.96 m³)</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sky-dark uppercase">Etapa 3: Tiempo de vaciado (Caudal = 2.5 m³/h)</span>
+            <p class="text-sm text-slate-700">Dividimos <code class="font-mono">16.96 ÷ 2.5</code> y redondeamos a 1 decimal:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>Tiempo ≈</span>
+              <input type="number" step="0.1" id="m3-step-3" placeholder="?.?" class="w-20 px-2 py-1 text-center font-bold border-2 border-sky-pastel rounded-lg focus:outline-none">
+              <span>horas (6 h 47 min)</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkModule3Steps()" class="px-6 py-3 rounded-2xl bg-sky-dark hover:opacity-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+              Verificar Procedimiento
+            </button>
+            <button onclick="fillModule3Hint()" class="px-4 py-3 rounded-2xl bg-sky-light hover:bg-sky-pastel/60 text-sky-dark font-semibold text-sm transition-all cursor-pointer">
+              Ver Pista
+            </button>
+          </div>
+          <div id="m3-steps-result" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+        </div>
+      </div>
+
+      <!-- TAB 3C: Practice Generator -->
+      <div id="subtab-3-C" class="subtab-panel-3 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Generador de Ejercicios: Cisterna Cilíndrica</h3>
+            <p class="text-sm text-slate-600">Calcula el tiempo de vaciado con nuevas dimensiones y fracciones.</p>
+          </div>
+          <button onclick="generateM3Practice()" class="px-4 py-2.5 rounded-xl bg-sky-light hover:bg-sky-pastel text-sky-dark font-bold text-sm transition-all cursor-pointer self-start">
+            Nuevo Problema
+          </button>
+        </div>
+
+        <div class="max-w-2xl bg-cream p-6 rounded-2xl border border-stone-200 space-y-4">
+          <p id="m3-prac-prompt" class="text-base sm:text-lg text-charcoal font-medium leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs font-mono text-slate-600" id="m3-prac-hint"></div>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <label class="text-sm font-bold text-charcoal">Tiempo en horas (1 decimal):</label>
+            <input type="number" step="0.1" id="m3-prac-input" placeholder="Ej. 5.0" class="w-28 px-3 py-2 rounded-xl border-2 border-sky-pastel font-mono font-bold text-center focus:outline-none">
+            <button onclick="checkM3Practice()" class="px-5 py-2.5 rounded-xl bg-sky-dark text-white font-bold text-sm hover:opacity-95 transition-all cursor-pointer">
+              Comprobar
+            </button>
+          </div>
+          <div id="m3-prac-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 4: ESCALERA CONTRA LA PARED                                  -->
+    <!-- =================================================================== -->
+    <section id="module-4" class="module-section hidden fade-in space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-peach-pastel/80 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-peach-light rounded-bl-full -z-0 opacity-70"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-peach-light text-peach-dark text-xs font-bold">
+              <span>Problema 04 • Teorema de Pitágoras y Ecuaciones Cuadráticas</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">4. Escalera contra la pared</h2>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+              Una escalera de <strong class="text-peach-dark font-bold">10 m</strong> se apoya en una pared. La altura que alcanza es <strong class="text-peach-dark font-bold">2 m mayor</strong> que la distancia de la base a la pared. ¿Qué altura alcanza?
+            </p>
+          </div>
+          <div class="bg-cream p-4 rounded-2xl border border-stone-200 shrink-0">
+            <p class="text-xs font-bold text-slate-500 uppercase mb-1">Teorema de Pitágoras</p>
+            <p class="font-mono text-base font-bold text-peach-dark">x² + (x + 2)² = 10²</p>
+            <p class="text-xs text-slate-500 mt-1">Triángulo rectángulo notable (6, 8, 10)</p>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
+          <button onclick="switchSubTab(4, 'A')" id="subbtn-4-A" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">A. Laboratorio Visual</button>
+          <button onclick="switchSubTab(4, 'B')" id="subbtn-4-B" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">B. Paso a Paso Guiado</button>
+          <button onclick="switchSubTab(4, 'C')" id="subbtn-4-C" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">C. Practica con Otros Valores</button>
+        </div>
+      </div>
+
+      <!-- TAB 4A: Visual Lab -->
+      <div id="subtab-4-A" class="subtab-panel-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-charcoal flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-peach-light text-peach-dark flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 20h18L3 4v16z"/></svg>
+              </span>
+              Deslizador de Base de Escalera
+            </h3>
+            <p class="text-sm text-slate-600">
+              Mueve la base de la escalera (<code class="font-mono font-bold">x</code>) alejándola de la pared. La escalera mide siempre <strong>10 m</strong>, por lo que la altura será <code class="font-mono">y = √(100 − x²)</code>. Busca cuándo <code class="font-mono">y − x = 2 m</code>.
+            </p>
+
+            <div class="bg-cream p-4 rounded-2xl border border-stone-200 space-y-2">
+              <div class="flex justify-between items-center">
+                <label for="m4-slider-x" class="text-sm font-bold text-charcoal">Distancia base a pared (x):</label>
+                <span id="m4-val-x" class="px-3 py-1 rounded-lg bg-peach-light text-peach-dark font-mono font-bold text-sm">4.0 m</span>
+              </div>
+              <input type="range" id="m4-slider-x" class="slider-peach" min="1" max="9.5" step="0.1" value="4" oninput="updateLadderLab()">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>1 m</span>
+                <span>6 m (Solución)</span>
+                <span>9.5 m</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="m4-feedback-box" class="p-4 rounded-2xl bg-peach-light/50 border border-peach-pastel space-y-2 transition-all">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Base (x)</p>
+                <p id="m4-base" class="text-base font-extrabold text-charcoal font-mono">4.00 m</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Altura (y)</p>
+                <p id="m4-height" class="text-base font-extrabold text-peach-dark font-mono">9.17 m</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Diferencia (y−x)</p>
+                <p id="m4-diff" class="text-base font-extrabold text-sky-dark font-mono">+5.17 m</p>
+              </div>
+            </div>
+            <p id="m4-status" class="text-xs font-semibold text-center text-slate-700 pt-1">
+              Objetivo: lograr que la diferencia (y − x) sea exactamente +2.00 m.
+            </p>
+          </div>
+        </div>
+
+        <!-- Wall & Ladder SVG -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex items-center justify-center">
+          <svg id="m4-svg" viewBox="0 0 420 330" class="w-full max-w-md h-auto">
+            <!-- Grid -->
+            <defs>
+              <pattern id="grid4" width="24" height="24" patternUnits="userSpaceOnUse">
+                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#F1F5F9" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="420" height="330" fill="url(#grid4)" rx="16"/>
+            <!-- Wall & Floor -->
+            <rect x="44" y="30" width="16" height="250" fill="#E2E8F0" stroke="#94A3B8" stroke-width="1.5"/>
+            <rect x="44" y="280" width="330" height="16" fill="#CBD5E1" stroke="#94A3B8" stroke-width="1.5"/>
+            <!-- Right Angle Symbol -->
+            <rect x="60" y="264" width="16" height="16" fill="none" stroke="#64748B" stroke-width="1.5"/>
+            
+            <!-- Triangle Fill -->
+            <polygon id="m4-tri" points="60,280 60,88 204,280" fill="#FFD8BE" fill-opacity="0.35"/>
+            
+            <!-- Ladder Line -->
+            <line id="m4-ladder" x1="60" y1="88" x2="204" y2="280" stroke="#B85D28" stroke-width="7" stroke-linecap="round"/>
+            <line id="m4-ladder-inner" x1="60" y1="88" x2="204" y2="280" stroke="#FFF1E8" stroke-width="2" stroke-dasharray="6,8"/>
+            
+            <!-- Labels -->
+            <text id="m4-lbl-y" x="36" y="185" text-anchor="end" font-size="12" font-weight="bold" fill="#B85D28">y</text>
+            <text id="m4-lbl-x" x="132" y="314" text-anchor="middle" font-size="12" font-weight="bold" fill="#2D3748">x</text>
+            <text id="m4-lbl-h" x="150" y="170" font-size="12" font-weight="bold" fill="#B85D28">10 m</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- TAB 4B: Step by Step Guided -->
+      <div id="subtab-4-B" class="subtab-panel-4 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Resolución por Teorema de Pitágoras</h3>
+            <p class="text-sm text-slate-600">Desarrolla el binomio y encuentra tanto la distancia de la base como la altura.</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-peach-light text-peach-dark self-start">Recompensa: +30 pts</span>
+        </div>
+
+        <div class="space-y-4 max-w-3xl">
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-peach-dark uppercase">Paso 1: Expandir x² + (x + 2)² = 100</span>
+            <p class="text-sm text-slate-700">Desarrollando <code class="font-mono">(x + 2)² = x² + 4x + 4</code> y sumando <code class="font-mono">x²</code>:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <input type="number" id="m4-step-1a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>x² +</span>
+              <input type="number" id="m4-step-1b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>x + 4 = 100</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-peach-dark uppercase">Paso 2: Igualar a cero y dividir entre 2</span>
+            <p class="text-sm text-slate-700">Pasando el 100 (<code class="font-mono">4 − 100 = −96</code>) y dividiendo toda la ecuación entre 2:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>x² + 2x −</span>
+              <input type="number" id="m4-step-2a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>= 0  ⟹  (x + 8)(x −</span>
+              <input type="number" id="m4-step-2b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>) = 0</span>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-peach-dark uppercase">Paso 3: Responder la pregunta del problema</span>
+            <p class="text-sm text-slate-700">¡Cuidado! El problema pregunta: <strong>¿Qué altura alcanza?</strong> (Recuerda que altura = <code class="font-mono">x + 2</code>).</p>
+            <div class="flex flex-wrap items-center gap-3 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>Base x =</span>
+              <input type="number" id="m4-step-3a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>m  |  Altura alcanzada =</span>
+              <input type="number" id="m4-step-3b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-peach-pastel rounded-lg focus:outline-none">
+              <span>m</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkModule4Steps()" class="px-6 py-3 rounded-2xl bg-peach-dark hover:opacity-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+              Verificar Procedimiento
+            </button>
+            <button onclick="fillModule4Hint()" class="px-4 py-3 rounded-2xl bg-peach-light hover:bg-peach-pastel/60 text-peach-dark font-semibold text-sm transition-all cursor-pointer">
+              Ver Pista
+            </button>
+          </div>
+          <div id="m4-steps-result" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+        </div>
+      </div>
+
+      <!-- TAB 4C: Practice Generator -->
+      <div id="subtab-4-C" class="subtab-panel-4 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Generador de Ejercicios: Escalera en Pared</h3>
+            <p class="text-sm text-slate-600">Resuelve nuevos triángulos pitagóricos.</p>
+          </div>
+          <button onclick="generateM4Practice()" class="px-4 py-2.5 rounded-xl bg-peach-light hover:bg-peach-pastel text-peach-dark font-bold text-sm transition-all cursor-pointer self-start">
+            Nuevo Problema
+          </button>
+        </div>
+
+        <div class="max-w-2xl bg-cream p-6 rounded-2xl border border-stone-200 space-y-4">
+          <p id="m4-prac-prompt" class="text-base sm:text-lg text-charcoal font-medium leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs font-mono text-slate-600" id="m4-prac-hint"></div>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <label class="text-sm font-bold text-charcoal">Altura alcanzada (m):</label>
+            <input type="number" id="m4-prac-input" placeholder="Ej. 12" class="w-28 px-3 py-2 rounded-xl border-2 border-peach-pastel font-mono font-bold text-center focus:outline-none">
+            <button onclick="checkM4Practice()" class="px-5 py-2.5 rounded-xl bg-peach-dark text-white font-bold text-sm hover:opacity-95 transition-all cursor-pointer">
+              Comprobar
+            </button>
+          </div>
+          <div id="m4-prac-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 5: PIRÁMIDE DE BLOQUES                                       -->
+    <!-- =================================================================== -->
+    <section id="module-5" class="module-section hidden fade-in space-y-6">
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-sage-pastel/80 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-36 h-36 bg-sage-light rounded-bl-full -z-0 opacity-70"></div>
+        <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sage-light text-sage-dark text-xs font-bold">
+              <span>Problema 05 • Sucesiones Cuadráticas y Series Numéricas</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal">5. Pirámide escalonada de bloques</h2>
+            <p class="text-base sm:text-lg text-slate-700 leading-relaxed">
+              Cada nivel <strong class="text-sage-dark font-bold">n</strong> tiene <strong class="text-sage-dark font-bold">n² bloques</strong> (1, 4, 9, 16…). ¿Cuántos niveles se necesitan para usar <strong class="text-sage-dark font-bold">385 bloques</strong>?
+            </p>
+          </div>
+          <div class="bg-cream p-4 rounded-2xl border border-stone-200 shrink-0">
+            <p class="text-xs font-bold text-slate-500 uppercase mb-1">Suma de Cuadrados</p>
+            <p class="font-mono text-base font-bold text-sage-dark">n(n + 1)(2n + 1) / 6 = 385</p>
+            <p class="text-xs text-slate-500 mt-1">1² + 2² + … + n² = 385</p>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-4 border-t border-stone-100 flex flex-wrap gap-2">
+          <button onclick="switchSubTab(5, 'A')" id="subbtn-5-A" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">A. Laboratorio Visual</button>
+          <button onclick="switchSubTab(5, 'B')" id="subbtn-5-B" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">B. Paso a Paso Guiado</button>
+          <button onclick="switchSubTab(5, 'C')" id="subbtn-5-C" class="subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all">C. Practica con Otros Valores</button>
+        </div>
+      </div>
+
+      <!-- TAB 5A: Visual Lab -->
+      <div id="subtab-5-A" class="subtab-panel-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col justify-between space-y-5">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-charcoal flex items-center gap-2.5">
+              <span class="w-7 h-7 rounded-lg bg-sage-light text-sage-dark flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 19 22 19 12 2"/><line x1="7" y1="11" x2="17" y2="11"/><line x1="4.5" y1="15" x2="19.5" y2="15"/></svg>
+              </span>
+              Constructor de Pirámide
+            </h3>
+            <p class="text-sm text-slate-600">
+              Agrega niveles base uno por uno. Cada nivel <code class="font-mono font-bold">n</code> añade <code class="font-mono font-bold">n²</code> bloques a la suma acumulada hasta alcanzar <strong>385 bloques</strong>.
+            </p>
+
+            <div class="flex items-center gap-3">
+              <button onclick="changePyramidLevels(1)" class="flex-1 py-3 px-4 rounded-2xl bg-sage-dark hover:bg-emerald-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+                + Agregar Nivel
+              </button>
+              <button onclick="changePyramidLevels(-1)" class="py-3 px-4 rounded-2xl bg-stone-100 hover:bg-stone-200 text-charcoal font-bold text-sm transition-all cursor-pointer">
+                − Quitar
+              </button>
+              <button onclick="resetPyramidLevels()" class="py-3 px-3 rounded-2xl bg-stone-100 hover:bg-stone-200 text-slate-600 font-bold text-sm transition-all cursor-pointer" title="Reiniciar a 3 niveles">
+                Reiniciar
+              </button>
+            </div>
+          </div>
+
+          <div id="m5-feedback-box" class="p-4 rounded-2xl bg-sage-light/60 border border-sage-pastel space-y-3">
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Niveles (n)</p>
+                <p id="m5-levels" class="text-lg font-extrabold text-charcoal font-mono">3</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Bloques Nivel n</p>
+                <p id="m5-level-blocks" class="text-lg font-extrabold text-sky-dark font-mono">9</p>
+              </div>
+              <div class="bg-white p-2.5 rounded-xl border border-stone-100">
+                <p class="text-[11px] text-slate-500 font-semibold">Total Acumulado</p>
+                <p id="m5-total-blocks" class="text-lg font-extrabold text-sage-dark font-mono">14</p>
+              </div>
+            </div>
+            <div class="bg-white/80 p-2.5 rounded-xl border border-stone-200/80 text-xs font-mono text-slate-700 overflow-x-auto" id="m5-series-text">
+              Suma: 1 + 4 + 9 = 14 bloques
+            </div>
+            <p id="m5-status" class="text-xs font-semibold text-center text-slate-700">
+              Sigue agregando niveles hasta llegar a 385 bloques.
+            </p>
+          </div>
+        </div>
+
+        <!-- Pyramid Interactive Visualizer -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/80 flex flex-col items-center justify-center">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Vista Frontal Escalonada y Desglose por Nivel</span>
+          <div id="m5-pyramid-visual" class="w-full flex flex-col items-center justify-end min-h-[260px] py-4 space-y-1.5"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5B: Step by Step Guided -->
+      <div id="subtab-5-B" class="subtab-panel-5 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Suma de los Primeros n Cuadrados</h3>
+            <p class="text-sm text-slate-600">Despeja y estima la raíz de la ecuación cúbica por acotación.</p>
+          </div>
+          <span class="text-xs font-bold px-3 py-1.5 rounded-xl bg-sage-light text-sage-dark self-start">Recompensa: +30 pts</span>
+        </div>
+
+        <div class="space-y-4 max-w-3xl">
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sage-dark uppercase">Paso 1: Multiplicar ambos lados por 6</span>
+            <p class="text-sm text-slate-700">En la fórmula <code class="font-mono">n(n + 1)(2n + 1) / 6 = 385</code>, pasamos el 6 multiplicando (<code class="font-mono">385 × 6</code>):</p>
+            <div class="flex items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>n(n + 1)(2n + 1) =</span>
+              <input type="number" id="m5-step-1" placeholder="?" class="w-24 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none">
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cream border border-stone-200 space-y-2">
+            <span class="text-xs font-bold text-sage-dark uppercase">Paso 2: Estimación Cúbica (2n³ ≈ 2310)</span>
+            <p class="text-sm text-slate-700">Como <code class="font-mono">n · n · 2n = 2n³</code>, dividimos <code class="font-mono">2310 ÷ 2 = 1155</code>. Sabemos que <code class="font-mono">10³ = 1000</code>, así que probamos <code class="font-mono">n = 10</code>:</p>
+            <div class="flex flex-wrap items-center gap-2 font-mono text-sm bg-white p-3 rounded-xl border border-stone-200">
+              <span>10 ×</span>
+              <input type="number" id="m5-step-2a" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none">
+              <span>×</span>
+              <input type="number" id="m5-step-2b" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none">
+              <span>= 2310  ⟹  n =</span>
+              <input type="number" id="m5-step-2c" placeholder="?" class="w-16 px-2 py-1 text-center font-bold border-2 border-sage-pastel rounded-lg focus:outline-none">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <button onclick="checkModule5Steps()" class="px-6 py-3 rounded-2xl bg-sage-dark hover:opacity-95 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+              Verificar Procedimiento
+            </button>
+            <button onclick="fillModule5Hint()" class="px-4 py-3 rounded-2xl bg-sage-light hover:bg-sage-pastel/60 text-sage-dark font-semibold text-sm transition-all cursor-pointer">
+              Ver Pista
+            </button>
+          </div>
+          <div id="m5-steps-result" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+        </div>
+      </div>
+
+      <!-- TAB 5C: Practice Generator -->
+      <div id="subtab-5-C" class="subtab-panel-5 hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">Generador de Ejercicios: Pirámide de Bloques</h3>
+            <p class="text-sm text-slate-600">Calcula niveles o total de bloques para nuevas pirámides cuadradas.</p>
+          </div>
+          <button onclick="generateM5Practice()" class="px-4 py-2.5 rounded-xl bg-sage-light hover:bg-sage-pastel text-sage-dark font-bold text-sm transition-all cursor-pointer self-start">
+            Nuevo Problema
+          </button>
+        </div>
+
+        <div class="max-w-2xl bg-cream p-6 rounded-2xl border border-stone-200 space-y-4">
+          <p id="m5-prac-prompt" class="text-base sm:text-lg text-charcoal font-medium leading-relaxed"></p>
+          <div class="p-3 rounded-xl bg-white border border-stone-200 text-xs font-mono text-slate-600" id="m5-prac-hint"></div>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <label class="text-sm font-bold text-charcoal">Tu respuesta:</label>
+            <input type="number" id="m5-prac-input" placeholder="Ej. 8" class="w-28 px-3 py-2 rounded-xl border-2 border-sage-pastel font-mono font-bold text-center focus:outline-none">
+            <button onclick="checkM5Practice()" class="px-5 py-2.5 rounded-xl bg-sage-dark text-white font-bold text-sm hover:opacity-95 transition-all cursor-pointer">
+              Comprobar
+            </button>
+          </div>
+          <div id="m5-prac-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 6: ARENA DE MINI-JUEGOS                                      -->
+    <!-- =================================================================== -->
+    <section id="module-6" class="module-section hidden fade-in space-y-6">
+      <!-- Arena Header -->
+      <div class="bg-white rounded-3xl p-6 shadow-sm border border-lavender-pastel flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <span class="px-3 py-1 rounded-full bg-lavender-light text-lavender-dark text-xs font-bold uppercase">Entrenamiento Aplicado</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-charcoal mt-1">Arena de Práctica y Razonamiento</h2>
+          <p class="text-sm sm:text-base text-slate-600">Consolida tu dominio algebraico con 3 retos interactivos diseñados para evitar errores comunes.</p>
+        </div>
+
+        <!-- Game Selector Pills -->
+        <div class="flex flex-wrap gap-2">
+          <button onclick="switchGame(1)" id="game-tab-1" class="game-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer">
+            1. Detective de Ecuaciones
+          </button>
+          <button onclick="switchGame(2)" id="game-tab-2" class="game-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer">
+            2. Constructor de Pasos
+          </button>
+          <button onclick="switchGame(3)" id="game-tab-3" class="game-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold transition-all cursor-pointer">
+            3. Desafío Contrarreloj
+          </button>
+        </div>
+      </div>
+
+      <!-- GAME 1: DETECTIVE DE ECUACIONES -->
+      <div id="game-panel-1" class="game-panel bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">1. Detective de Ecuaciones y Restricciones</h3>
+            <p class="text-sm text-slate-600">Selecciona una situación a la izquierda y luego haz clic en su modelo algebraico y restricción física a la derecha.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="px-3 py-1.5 rounded-xl bg-peach-light text-peach-dark text-xs font-bold">Racha: <span id="g1-streak">0</span></span>
+            <button onclick="initGame1()" class="px-3.5 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-xs font-bold text-charcoal cursor-pointer">Reiniciar</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Left Column: Situations -->
+          <div class="space-y-3">
+            <p class="text-xs font-bold uppercase text-slate-400">1. Elige un Problema o Concepto</p>
+            <div id="g1-left-list" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Right Column: Models -->
+          <div class="space-y-3">
+            <p class="text-xs font-bold uppercase text-slate-400">2. Conecta con su Ecuación y Dominio</p>
+            <div id="g1-right-list" class="space-y-2.5"></div>
+          </div>
+        </div>
+        <div id="g1-feedback" class="p-4 rounded-2xl bg-cream border border-stone-200 text-sm font-medium text-center text-slate-600">
+          Haz clic en una tarjeta izquierda para comenzar a emparejar.
+        </div>
+      </div>
+
+      <!-- GAME 2: CONSTRUCTOR DE PASOS -->
+      <div id="game-panel-2" class="game-panel hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">2. Constructor de Pasos Lógicos</h3>
+            <p class="text-sm text-slate-600">Ordena los pasos del procedimiento desde el planteamiento hasta la conclusión física.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="g2-problem-select" onchange="initGame2()" class="px-3 py-2 rounded-xl border border-stone-300 bg-cream text-sm font-bold text-charcoal">
+              <option value="0">Problema 01: Cubo que crece</option>
+              <option value="1">Problema 02: Caja sin tapa</option>
+              <option value="2">Problema 04: Escalera en pared</option>
+              <option value="3">Problema 05: Pirámide de bloques</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Scrambled Pool -->
+          <div class="bg-cream p-5 rounded-2xl border border-stone-200 space-y-3">
+            <p class="text-xs font-bold uppercase text-slate-500">Pasos Desordenados (Haz clic para agregar en orden)</p>
+            <div id="g2-pool" class="space-y-2.5"></div>
+          </div>
+
+          <!-- Ordered Sequence -->
+          <div class="bg-sky-light/40 p-5 rounded-2xl border border-sky-pastel space-y-3 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <p class="text-xs font-bold uppercase text-sky-dark">Tu Secuencia Ordenada</p>
+                <button onclick="initGame2()" class="text-xs font-bold text-slate-500 hover:text-charcoal cursor-pointer">Limpiar todo</button>
+              </div>
+              <div id="g2-target" class="space-y-2 min-h-[180px]"></div>
+            </div>
+            <button onclick="checkGame2()" class="w-full py-3 rounded-xl bg-sky-dark hover:opacity-95 text-white font-bold text-sm transition-all cursor-pointer">
+              Validar Orden Lógico
+            </button>
+          </div>
+        </div>
+        <div id="g2-feedback" class="hidden p-4 rounded-2xl text-sm font-semibold"></div>
+      </div>
+
+      <!-- GAME 3: DESAFÍO CONTRARRELOJ -->
+      <div id="game-panel-3" class="game-panel hidden bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-stone-200/80 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-100 pb-4">
+          <div>
+            <h3 class="text-xl font-extrabold text-charcoal">3. Desafío Contrarreloj Proyecto Aula</h3>
+            <p class="text-sm text-slate-600">Responde 5 preguntas mixtas antes de que el reloj llegue a cero. Usa pistas si las necesitas.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="px-4 py-2 rounded-xl bg-peach-light text-peach-dark font-mono font-extrabold text-base">
+              Tiempo: <span id="g3-timer">90</span>s
+            </div>
+            <div class="px-4 py-2 rounded-xl bg-sage-light text-sage-dark font-bold text-sm">
+              Puntos: <span id="g3-score">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div id="g3-start-screen" class="text-center py-8 space-y-4 max-w-lg mx-auto">
+          <div class="w-14 h-14 rounded-2xl bg-lavender-light text-lavender-dark mx-auto flex items-center justify-center border border-lavender-pastel">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <h4 class="text-xl font-extrabold text-charcoal">Evaluación Rápida de Conceptos</h4>
+          <p class="text-sm text-slate-600">Dispones de 90 segundos para resolver 5 reactivos sobre volúmenes, factorización, Pitágoras y series cuadráticas.</p>
+          <button onclick="startGame3()" class="px-8 py-3.5 rounded-2xl bg-lavender-dark hover:opacity-95 text-white font-bold text-base shadow-md transition-all cursor-pointer">
+            Comenzar Reto
+          </button>
+        </div>
+
+        <!-- Active Quiz Screen -->
+        <div id="g3-quiz-screen" class="hidden max-w-2xl mx-auto space-y-5">
+          <div class="flex justify-between items-center text-xs font-bold text-slate-500">
+            <span>Pregunta <span id="g3-q-num">1</span> de 5</span>
+            <button onclick="showGame3Hint()" class="text-lavender-dark hover:underline cursor-pointer">Solicitar Pista</button>
+          </div>
+          <div class="p-6 rounded-2xl bg-cream border border-stone-200 space-y-4">
+            <p id="g3-q-text" class="text-base sm:text-lg font-bold text-charcoal"></p>
+            <div id="g3-hint-box" class="hidden p-3 rounded-xl bg-lavender-light/70 text-lavender-dark text-xs font-medium"></div>
+            <div id="g3-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2"></div>
+          </div>
+          <div id="g3-q-feedback" class="hidden p-3.5 rounded-xl text-sm font-semibold text-center"></div>
+        </div>
+
+        <!-- End Screen -->
+        <div id="g3-end-screen" class="hidden text-center py-8 space-y-4 max-w-lg mx-auto">
+          <div class="w-14 h-14 rounded-2xl bg-sage-light text-sage-dark mx-auto flex items-center justify-center border border-sage-pastel">
+            <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h4 class="text-2xl font-extrabold text-charcoal" id="g3-end-title">Reto Completado</h4>
+          <p class="text-base text-slate-600" id="g3-end-summary"></p>
+          <button onclick="startGame3()" class="px-6 py-3 rounded-2xl bg-lavender-dark text-white font-bold text-sm cursor-pointer">
+            Repetir Evaluación
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Minimalist Educational Footer -->
+  <footer class="bg-white border-t border-stone-200/80 py-5 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <p class="font-semibold text-charcoal">Laboratorio Interactivo de Álgebra y Geometría • Proyecto Aula</p>
+      <p>Aprendizaje activo basado en visualización, modelado algebraico y resolución guiada.</p>
+    </div>
+  </footer>
+
+  <!-- =================================================================== -->
+  <!-- JAVASCRIPT LOGIC & INTERACTIVE SIMULATORS                           -->
+  <!-- =================================================================== -->
+  <script>
+    // =========================================================================
+    // 1. GLOBAL STATE & GAMIFICATION ENGINE
+    // =========================================================================
+    const state = {
+      currentModule: 1,
+      points: 0,
+      completedTasks: new Set(), // Tracks unique task IDs so points aren't duplicated
+      medals: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false }
+    };
+
+    // =========================================================================
+    // 1B. OPTIONAL FIRST-TIME WELCOME & 5-STEP INTERACTIVE TOUR
+    // =========================================================================
+    const TOUR_STORAGE_KEY = 'proyecto_aula_algebra_tour_seen_v1';
+    let currentTourStep = 0;
+
+    const tourSteps = [
+      {
+        title: '1. Barra de Dominio e Insignias',
+        desc: 'Aquí visualizas tu puntuación acumulada, el porcentaje de avance global y las 6 insignias de dominio (01 al 05 para cada problema y PR para la Arena de Práctica).',
+        tip: 'Cada desarrollo paso a paso verificado otorga +30 pts y desbloquea la insignia correspondiente al módulo.',
+        targetId: 'tour-target-stats',
+        prepare: () => {}
+      },
+      {
+        title: '2. Navegación entre Problemas y Arena',
+        desc: 'Usa esta barra superior para alternar libremente entre los 5 problemas geométricos del Proyecto Aula (01 al 05) y la sección de Práctica y Mini-Juegos.',
+        tip: 'Puedes resolver los problemas en cualquier orden sin perder tu progreso de la sesión.',
+        targetId: 'tour-target-nav',
+        prepare: () => {
+          switchModule(1);
+        }
+      },
+      {
+        title: '3. Controles del Laboratorio Visual',
+        desc: 'En la pestaña "A. Laboratorio Visual", manipula deslizadores, botones de bombeo hidráulico o constructores de niveles para ver cómo cambian las figuras y volúmenes en tiempo real.',
+        tip: 'Observa el indicador numérico inferior: te avisará exactamente cuando alcances la condición del problema.',
+        targetId: 'tour-target-lab-controls',
+        prepare: () => {
+          switchModule(1);
+          switchSubTab(1, 'A');
+        }
+      },
+      {
+        title: '4. Resolución Paso a Paso Guiada',
+        desc: 'Cambia a la pestaña "B. Paso a Paso Guiado" dentro de cada problema para completar coeficientes clave, desarrollar ecuaciones y verificar tu razonamiento.',
+        tip: 'Si te atoras en algún paso, utiliza el botón "Ver Pista" para recibir ayuda inmediata.',
+        targetId: 'tour-target-subtabs',
+        prepare: () => {
+          switchModule(1);
+          switchSubTab(1, 'B');
+        }
+      },
+      {
+        title: '5. Práctica Aleatoria y Arena de Juegos',
+        desc: 'Usa la pestaña "C. Practica con Otros Valores" para generar ejercicios infinitos, o entra a "Arena de Práctica" para jugar Detective de Ecuaciones, Constructor de Pasos y Contrarreloj.',
+        tip: 'Cuando quieras volver a ver esta explicación, haz clic en el botón "Guía de uso" en la esquina superior derecha.',
+        targetId: 'nav-btn-6',
+        prepare: () => {
+          switchModule(1);
+          switchSubTab(1, 'A');
+        }
+      }
+    ];
+
+    function checkFirstVisitTutorial() {
+      try {
+        const seen = localStorage.getItem(TOUR_STORAGE_KEY);
+        if (!seen) {
+          document.getElementById('welcome-modal').classList.remove('hidden');
+        }
+      } catch (e) {
+        // Fallback if localStorage is blocked in sandboxed iframes
+        document.getElementById('welcome-modal').classList.remove('hidden');
+      }
+    }
+
+    function markTutorialSeen() {
+      try {
+        localStorage.setItem(TOUR_STORAGE_KEY, 'true');
+      } catch (e) {
+        // Ignore storage errors safely
+      }
+    }
+
+    function dismissWelcomeModal() {
+      markTutorialSeen();
+      document.getElementById('welcome-modal').classList.add('hidden');
+      showToast('Explora libremente. Puedes abrir la Guía de uso cuando quieras.', 'info');
+    }
+
+    function clearTourHighlights() {
+      document.querySelectorAll('.tour-highlight').forEach(el => {
+        el.classList.remove('tour-highlight');
+      });
+    }
+
+    function startGuidedTour() {
+      markTutorialSeen();
+      document.getElementById('welcome-modal').classList.add('hidden');
+      document.getElementById('tour-overlay').classList.remove('hidden');
+      currentTourStep = 0;
+      renderTourStep();
+    }
+
+    function renderTourStep() {
+      clearTourHighlights();
+      const step = tourSteps[currentTourStep];
+      if (step.prepare) step.prepare();
+
+      document.getElementById('tour-step-badge').textContent = `Paso ${currentTourStep + 1} de ${tourSteps.length}`;
+      document.getElementById('tour-progress-fill').style.width = `${((currentTourStep + 1) / tourSteps.length) * 100}%`;
+      document.getElementById('tour-title').textContent = step.title;
+      document.getElementById('tour-desc').textContent = step.desc;
+      document.getElementById('tour-tip-box').textContent = step.tip;
+
+      // Dots indicator
+      const dotsEl = document.getElementById('tour-dots');
+      dotsEl.innerHTML = tourSteps.map((_, idx) =>
+        `<span class="w-2 h-2 rounded-full transition-all ${idx === currentTourStep ? 'bg-lavender-dark w-4' : 'bg-stone-300'}"></span>`
+      ).join('');
+
+      // Buttons state
+      document.getElementById('tour-prev-btn').disabled = currentTourStep === 0;
+      document.getElementById('tour-next-btn').textContent = currentTourStep === tourSteps.length - 1 ? 'Finalizar' : 'Siguiente';
+
+      // Spotlight target element
+      const targetEl = document.getElementById(step.targetId);
+      if (targetEl) {
+        targetEl.classList.add('tour-highlight');
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    function nextTourStep() {
+      if (currentTourStep < tourSteps.length - 1) {
+        currentTourStep++;
+        renderTourStep();
+      } else {
+        endGuidedTour();
+      }
+    }
+
+    function prevTourStep() {
+      if (currentTourStep > 0) {
+        currentTourStep--;
+        renderTourStep();
+      }
+    }
+
+    function endGuidedTour() {
+      clearTourHighlights();
+      document.getElementById('tour-overlay').classList.add('hidden');
+      switchModule(1);
+      switchSubTab(1, 'A');
+      showToast('Recorrido finalizado. Ya estás listo para resolver los retos.', 'success');
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = type === 'success'
+        ? 'bg-sage-dark text-white border-emerald-700'
+        : type === 'info'
+        ? 'bg-lavender-dark text-white border-purple-800'
+        : 'bg-peach-dark text-white border-orange-800';
+      const iconSvg = type === 'success'
+        ? '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+        : '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-lg border text-sm font-semibold flex items-center gap-2.5 badge-pop ${colors}`;
+      toast.innerHTML = `${iconSvg}<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(8px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3400);
+    }
+
+    function awardProgress(taskId, pts, medalId = null, customMsg = null) {
+      if (!state.completedTasks.has(taskId)) {
+        state.completedTasks.add(taskId);
+        state.points += pts;
+        document.getElementById('stat-points').textContent = state.points;
+
+        // Total possible milestones = 11
+        const pct = Math.min(100, Math.round((state.completedTasks.size / 11) * 100));
+        document.getElementById('stat-percent').textContent = `${pct}%`;
+        document.getElementById('global-progress-bar').style.width = `${pct}%`;
+
+        if (medalId && !state.medals[medalId]) {
+          state.medals[medalId] = true;
+          const medalEl = document.getElementById(`medal-${medalId}`);
+          if (medalEl) {
+            medalEl.classList.remove('opacity-40', 'bg-stone-100', 'text-slate-600');
+            medalEl.classList.add('bg-amber-100', 'border-amber-400', 'text-amber-900', 'scale-110', 'shadow-sm', 'badge-pop');
+          }
+        }
+        showToast(customMsg || `Excelente. Ganaste +${pts} pts de dominio.`);
+      }
+    }
+
+    // =========================================================================
+    // 2. NAVIGATION (MODULES & SUBTABS)
+    // =========================================================================
+    function switchModule(modId) {
+      state.currentModule = modId;
+      document.querySelectorAll('.module-section').forEach(sec => sec.classList.add('hidden'));
+      document.getElementById(`module-${modId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-pill').forEach(btn => {
+        btn.className = 'nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 border bg-white text-slate-600 border-stone-200 hover:bg-stone-50 cursor-pointer';
+      });
+      const activeBtn = document.getElementById(`nav-btn-${modId}`);
+      activeBtn.className = 'nav-pill shrink-0 px-3.5 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 border bg-charcoal text-white border-charcoal shadow-sm cursor-pointer';
+    }
+
+    function switchSubTab(modId, tabLetter) {
+      document.querySelectorAll(`.subtab-panel-${modId}`).forEach(p => p.classList.add('hidden'));
+      document.getElementById(`subtab-${modId}-${tabLetter}`).classList.remove('hidden');
+
+      ['A', 'B', 'C'].forEach(letter => {
+        const btn = document.getElementById(`subbtn-${modId}-${letter}`);
+        if (letter === tabLetter) {
+          btn.className = 'subtab-btn px-4 py-2 rounded-xl text-sm font-bold transition-all bg-charcoal text-white shadow-sm cursor-pointer';
+        } else {
+          btn.className = 'subtab-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all bg-cream text-slate-600 border border-stone-200 hover:bg-stone-100 cursor-pointer';
+        }
+      });
+    }
+
+    // =========================================================================
+    // 3. MODULE 1: CUBO QUE CRECE
+    // =========================================================================
+    function drawIsoCube(cx, cy, size, fillTop, fillLeft, fillRight, strokeColor, dashed = false) {
+      const dx = size * 0.866;
+      const dy = size * 0.5;
+      const dashAttr = dashed ? 'stroke-dasharray="5,4"' : '';
+      // Vertices relative to bottom-front corner (cx, cy)
+      const p0 = `${cx},${cy}`;
+      const p1 = `${cx - dx},${cy - dy}`;
+      const p2 = `${cx - dx},${cy - dy - size}`;
+      const p3 = `${cx},${cy - size}`;
+      const p4 = `${cx + dx},${cy - dy}`;
+      const p5 = `${cx + dx},${cy - dy - size}`;
+      const p6 = `${cx},${cy - 2 * dy - size}`;
+
+      return `
+        <polygon points="${p3} ${p2} ${p6} ${p5}" fill="${fillTop}" stroke="${strokeColor}" stroke-width="1.8" ${dashAttr}/>
+        <polygon points="${p0} ${p1} ${p2} ${p3}" fill="${fillLeft}" stroke="${strokeColor}" stroke-width="1.8" ${dashAttr}/>
+        <polygon points="${p0} ${p4} ${p5} ${p3}" fill="${fillRight}" stroke="${strokeColor}" stroke-width="1.8" ${dashAttr}/>
+      `;
+    }
+
+    function updateCubeLab() {
+      const x = parseFloat(document.getElementById('m1-slider-x').value);
+      const dx = parseFloat(document.getElementById('m1-slider-dx').value);
+      const vOrig = Math.pow(x, 3);
+      const vNew = Math.pow(x + dx, 3);
+      const dv = vNew - vOrig;
+
+      document.getElementById('m1-val-x').textContent = `${x.toFixed(1)} cm`;
+      document.getElementById('m1-val-dx').textContent = `+${dx.toFixed(1)} cm`;
+      document.getElementById('m1-v-orig').textContent = `${Number.isInteger(vOrig) ? vOrig : vOrig.toFixed(1)} cm³`;
+      document.getElementById('m1-v-new').textContent = `${Number.isInteger(vNew) ? vNew : vNew.toFixed(1)} cm³`;
+      document.getElementById('m1-dv').textContent = `${Number.isInteger(dv) ? dv : dv.toFixed(1)} cm³`;
+
+      const statusMsg = document.getElementById('m1-status-msg');
+      const box = document.getElementById('m1-feedback-box');
+      if (Math.abs(dv - 218) < 0.01 && dx === 2) {
+        statusMsg.innerHTML = `<strong>Objetivo alcanzado:</strong> Cuando x = 5 cm y Δx = 2 cm, ΔV = 343 − 125 = <strong>218 cm³</strong>.`;
+        box.className = 'p-4 rounded-2xl bg-emerald-100 border-2 border-sage-dark space-y-2 transition-all';
+      } else {
+        statusMsg.textContent = `Diferencia actual: ${dv.toFixed(1)} cm³. Objetivo del problema: ΔV = 218 cm³ (con Δx = 2 cm).`;
+        box.className = 'p-4 rounded-2xl bg-sage-light/60 border border-sage-pastel space-y-2 transition-all';
+      }
+
+      // Draw Isometric Cubes
+      const scale = 11.5;
+      const sOrig = x * scale;
+      const sNew = (x + dx) * scale;
+      const group = document.getElementById('m1-cubes-group');
+      group.innerHTML =
+        drawIsoCube(0, 0, sNew, 'rgba(199, 227, 255, 0.35)', 'rgba(199, 227, 255, 0.25)', 'rgba(147, 197, 253, 0.35)', '#2B6CB0', true) +
+        drawIsoCube(0, 0, sOrig, '#A8D5BA', '#86EFAC', '#6EE7B7', '#3D7A5A', false) +
+        `<text x="0" y="26" text-anchor="middle" font-size="12" font-weight="bold" fill="#2D3748">x = ${x} cm  |  x + Δx = ${x + dx} cm</text>`;
+    }
+
+    function fillModule1Hint() {
+      document.getElementById('m1-step-1a').value = 6;
+      document.getElementById('m1-step-1b').value = 12;
+      showToast('Pista aplicada en Paso 1: (x+2)³ = x³ + 6x² + 12x + 8', 'info');
+    }
+
+    function checkModule1Steps() {
+      const s1a = Number(document.getElementById('m1-step-1a').value);
+      const s1b = Number(document.getElementById('m1-step-1b').value);
+      const s2a = Number(document.getElementById('m1-step-2a').value);
+      const s2b = Number(document.getElementById('m1-step-2b').value);
+      const s3a = Number(document.getElementById('m1-step-3a').value);
+      const s3b = document.getElementById('m1-step-3b').value;
+      const res = document.getElementById('m1-steps-result');
+      res.classList.remove('hidden');
+
+      if (s1a === 6 && s1b === 12 && s2a === 2 && s2b === 35 && s3a === 5 && s3b === 'neg') {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        res.textContent = 'Correcto. Dominaste el desarrollo del binomio al cubo, la reducción cuadrática y el criterio físico de longitud positiva.';
+        awardProgress('m1-steps', 30, 1, 'Insignia 01 (Cubo que crece) desbloqueada (+30 pts)');
+      } else {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-400';
+        res.textContent = 'Revisa tus valores: 3·x²·2 = 6x², 3·x·4 = 12x. Al dividir 6x² + 12x − 210 = 0 entre 6 queda x² + 2x − 35 = 0.';
+      }
+    }
+
+    let m1PracAns = 4;
+    function generateM1Practice() {
+      const xAns = Math.floor(Math.random() * 6) + 3; // 3 to 8
+      const dx = Math.floor(Math.random() * 3) + 2;   // 2 to 4
+      const dv = Math.pow(xAns + dx, 3) - Math.pow(xAns, 3);
+      m1PracAns = xAns;
+
+      document.getElementById('m1-prac-prompt').innerHTML =
+        `Un cubo de arista <strong>x cm</strong> aumenta su arista en <strong>${dx} cm</strong> y su volumen crece <strong>${dv} cm³</strong>. ¿Cuánto medía la arista original?`;
+      document.getElementById('m1-prac-hint').textContent =
+        `Ecuación: (x + ${dx})³ − x³ = ${dv}  ⟹  ${3*dx}x² + ${3*dx*dx}x + ${Math.pow(dx,3) - dv} = 0`;
+      document.getElementById('m1-prac-input').value = '';
+      document.getElementById('m1-prac-feedback').classList.add('hidden');
+    }
+
+    function checkM1Practice() {
+      const val = Number(document.getElementById('m1-prac-input').value);
+      const fb = document.getElementById('m1-prac-feedback');
+      fb.classList.remove('hidden');
+      if (val === m1PracAns) {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-emerald-100 text-emerald-900';
+        fb.textContent = `Correcto. La arista original medía ${m1PracAns} cm.`;
+        awardProgress('m1-prac', 20, 1);
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-100 text-rose-900';
+        fb.textContent = `Incorrecto. Intenta sustituyendo x en la ecuación de la pista.`;
+      }
+    }
+
+    // =========================================================================
+    // 4. MODULE 2: CAJA SIN TAPA
+    // =========================================================================
+    function setBoxX(val) {
+      document.getElementById('m2-slider-x').value = val;
+      updateBoxLab();
+    }
+
+    function updateBoxLab() {
+      const x = parseFloat(document.getElementById('m2-slider-x').value);
+      const base = 20 - 2 * x;
+      const vol = x * base * base;
+
+      document.getElementById('m2-val-x').textContent = `${x.toFixed(2)} cm`;
+      document.getElementById('m2-base').textContent = `${base.toFixed(1)} × ${base.toFixed(1)}`;
+      document.getElementById('m2-height').textContent = `${x.toFixed(2)} cm`;
+      document.getElementById('m2-vol').textContent = `${vol.toFixed(1)} cm³`;
+
+      const status = document.getElementById('m2-status');
+      if (Math.abs(vol - 576) < 4) {
+        status.innerHTML = `<strong>Volumen objetivo (576 cm³) alcanzado:</strong> x ≈ ${x.toFixed(2)} cm es una solución válida (< 10 cm).`;
+      } else {
+        status.textContent = `Volumen actual: ${vol.toFixed(1)} cm³. Busca 576 cm³ (ocurre en x = 4 cm y x ≈ 2.71 cm).`;
+      }
+
+      // Draw 2D Sheet (200px represents 20cm -> 10px per cm)
+      const svg2d = document.getElementById('m2-svg-2d');
+      const px = x * 10;
+      const offset = 30;
+      const total = 200;
+      svg2d.innerHTML = `
+        <rect x="${offset}" y="${offset}" width="${total}" height="${total}" fill="#F2ECFF" stroke="#5E43A6" stroke-width="2" rx="4"/>
+        <!-- Fold lines -->
+        <rect x="${offset + px}" y="${offset + px}" width="${total - 2*px}" height="${total - 2*px}" fill="#D8C7FF" fill-opacity="0.45" stroke="#5E43A6" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <!-- 4 Cutout corners -->
+        <rect x="${offset}" y="${offset}" width="${px}" height="${px}" fill="#FFFFFF" stroke="#B85D28" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <rect x="${offset + total - px}" y="${offset}" width="${px}" height="${px}" fill="#FFFFFF" stroke="#B85D28" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <rect x="${offset}" y="${offset + total - px}" width="${px}" height="${px}" fill="#FFFFFF" stroke="#B85D28" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <rect x="${offset + total - px}" y="${offset + total - px}" width="${px}" height="${px}" fill="#FFFFFF" stroke="#B85D28" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <text x="130" y="20" text-anchor="middle" font-size="11" font-weight="bold" fill="#2D3748">Lado total: 20 cm</text>
+        <text x="130" y="134" text-anchor="middle" font-size="11" font-weight="bold" fill="#5E43A6">Base: ${base.toFixed(1)} cm</text>
+      `;
+
+      // Draw 3D Open Box
+      const svg3d = document.getElementById('m2-svg-3d');
+      const bScale = base * 6.2;
+      const hScale = x * 7.5;
+      const cx = 130, cy = 215;
+      const dx = bScale * 0.85, dy = bScale * 0.42;
+
+      const b0 = `${cx},${cy}`;
+      const b1 = `${cx - dx},${cy - dy}`;
+      const b2 = `${cx},${cy - 2*dy}`;
+      const b3 = `${cx + dx},${cy - dy}`;
+
+      const t0 = `${cx},${cy - hScale}`;
+      const t1 = `${cx - dx},${cy - dy - hScale}`;
+      const t2 = `${cx},${cy - 2*dy - hScale}`;
+      const t3 = `${cx + dx},${cy - dy - hScale}`;
+
+      svg3d.innerHTML = `
+        <!-- Back inner walls -->
+        <polygon points="${b1} ${b2} ${t2} ${t1}" fill="#EDE9FE" stroke="#5E43A6" stroke-width="1.5"/>
+        <polygon points="${b2} ${b3} ${t3} ${t2}" fill="#DDD6FE" stroke="#5E43A6" stroke-width="1.5"/>
+        <!-- Front outer walls -->
+        <polygon points="${b0} ${b1} ${t1} ${t0}" fill="#C4B5FD" fill-opacity="0.85" stroke="#5E43A6" stroke-width="1.8"/>
+        <polygon points="${b0} ${b3} ${t3} ${t0}" fill="#A78BFA" fill-opacity="0.85" stroke="#5E43A6" stroke-width="1.8"/>
+        <text x="130" y="245" text-anchor="middle" font-size="11" font-weight="bold" fill="#5E43A6">Altura x = ${x.toFixed(2)} cm</text>
+      `;
+    }
+
+    function fillModule2Hint() {
+      document.getElementById('m2-step-1a').value = 20;
+      document.getElementById('m2-step-1b').value = 144;
+      showToast('Pista aplicada: x(400 − 80x + 4x²) = 576 ÷ 4 ⟹ x³ − 20x² + 100x − 144 = 0', 'info');
+    }
+
+    function checkModule2Steps() {
+      const s1a = Number(document.getElementById('m2-step-1a').value);
+      const s1b = Number(document.getElementById('m2-step-1b').value);
+      const s2a = Number(document.getElementById('m2-step-2a').value);
+      const s2b = Number(document.getElementById('m2-step-2b').value);
+      const s3a = Number(document.getElementById('m2-step-3a').value);
+      const s3b = document.getElementById('m2-step-3b').value;
+      const res = document.getElementById('m2-steps-result');
+      res.classList.remove('hidden');
+
+      if (s1a === 20 && s1b === 144 && s2a === 16 && s2b === 36 && Math.abs(s3a - 2.71) <= 0.05 && s3b === 'half') {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        res.textContent = 'Excelente trabajo. Encontraste ambas raíces físicas (x = 4 cm y x ≈ 2.71 cm) y justificaste por qué 13.29 cm es imposible.';
+        awardProgress('m2-steps', 30, 2, 'Insignia 02 (Caja sin tapa) desbloqueada (+30 pts)');
+      } else {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-400';
+        res.textContent = 'Revisa tus datos: (x − 4)(x² − 16x + 36) = 0, y 8 − 2√7 ≈ 2.71 cm.';
+      }
+    }
+
+    let m2PracAns = 3;
+    function generateM2Practice() {
+      const configs = [
+        { L: 16, x: 3 }, // base 10 -> vol 300
+        { L: 18, x: 3 }, // base 12 -> vol 432
+        { L: 24, x: 4 }, // base 16 -> vol 1024
+        { L: 14, x: 2 }, // base 10 -> vol 200
+        { L: 22, x: 3 }  // base 16 -> vol 768
+      ];
+      const pick = configs[Math.floor(Math.random() * configs.length)];
+      const vol = pick.x * Math.pow(pick.L - 2 * pick.x, 2);
+      m2PracAns = pick.x;
+
+      document.getElementById('m2-prac-prompt').innerHTML =
+        `De una lámina cuadrada de <strong>${pick.L} cm</strong> de lado se cortan cuadrados de lado <strong>x</strong> en las esquinas para formar una caja sin tapa de <strong>${vol} cm³</strong>. Encuentra el valor entero de <strong>x</strong>.`;
+      document.getElementById('m2-prac-hint').textContent =
+        `Ecuación: x(${pick.L} − 2x)² = ${vol}, con restricción 0 < x < ${pick.L / 2}`;
+      document.getElementById('m2-prac-input').value = '';
+      document.getElementById('m2-prac-feedback').classList.add('hidden');
+    }
+
+    function checkM2Practice() {
+      const val = Number(document.getElementById('m2-prac-input').value);
+      const fb = document.getElementById('m2-prac-feedback');
+      fb.classList.remove('hidden');
+      if (val === m2PracAns) {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-emerald-100 text-emerald-900';
+        fb.textContent = `Correcto. x = ${m2PracAns} cm cumple la ecuación y es menor a la mitad del lado.`;
+        awardProgress('m2-prac', 20, 2);
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-100 text-rose-900';
+        fb.textContent = `Intenta nuevamente. Prueba valores enteros menores a la mitad del lado.`;
+      }
+    }
+
+    // =========================================================================
+    // 5. MODULE 3: CISTERNA CILÍNDRICA
+    // =========================================================================
+    let pumpInterval = null;
+    let pumpRunning = false;
+    const totalCisternVol = Math.PI * 1.5 * 1.5 * 4; // 9π ≈ 28.2743
+    const initWaterVol = (3 / 5) * totalCisternVol;    // 5.4π ≈ 16.9646
+    let currentWaterVol = initWaterVol;
+    let elapsedHours = 0;
+
+    function renderCisternVisual() {
+      const pct = Math.max(0, currentWaterVol / totalCisternVol);
+      const maxH = 210;
+      const waterH = maxH * pct;
+      const topY = 270 - waterH;
+
+      document.getElementById('m3-water-rect').setAttribute('y', topY);
+      document.getElementById('m3-water-rect').setAttribute('height', waterH);
+      document.getElementById('m3-water-top').setAttribute('cy', topY);
+      document.getElementById('m3-water-top').setAttribute('opacity', waterH > 1 ? '1' : '0');
+
+      const hrs = Math.floor(elapsedHours);
+      const mins = Math.round((elapsedHours - hrs) * 60);
+      document.getElementById('m3-time-display').textContent = `${elapsedHours.toFixed(2)} h`;
+      document.getElementById('m3-time-hm').textContent = `${hrs} h ${String(mins).padStart(2, '0')} min`;
+      document.getElementById('m3-water-display').textContent = `${currentWaterVol.toFixed(2)} m³`;
+      document.getElementById('m3-pct-display').textContent = `${(pct * 100).toFixed(1)}% de ${totalCisternVol.toFixed(2)} m³`;
+    }
+
+    function togglePump() {
+      const btn = document.getElementById('m3-pump-btn');
+      const drop = document.getElementById('m3-water-drop');
+      if (pumpRunning) {
+        clearInterval(pumpInterval);
+        pumpRunning = false;
+        btn.innerHTML = '<span>Reanudar Bombeo</span>';
+        drop.setAttribute('opacity', '0');
+      } else {
+        if (currentWaterVol <= 0.01) resetPump();
+        pumpRunning = true;
+        btn.innerHTML = '<span>Pausar Bombeo</span>';
+        drop.setAttribute('opacity', '1');
+        pumpInterval = setInterval(() => {
+          const dt = 0.08; // simulated hours per tick
+          elapsedHours += dt;
+          currentWaterVol = Math.max(0, initWaterVol - 2.5 * elapsedHours);
+          if (currentWaterVol <= 0) {
+            elapsedHours = initWaterVol / 2.5;
+            clearInterval(pumpInterval);
+            pumpRunning = false;
+            btn.innerHTML = '<span>Cisterna Vacía</span>';
+            drop.setAttribute('opacity', '0');
+          }
+          renderCisternVisual();
+        }, 50);
+      }
+    }
+
+    function resetPump() {
+      clearInterval(pumpInterval);
+      pumpRunning = false;
+      currentWaterVol = initWaterVol;
+      elapsedHours = 0;
+      document.getElementById('m3-pump-btn').innerHTML = '<span>Iniciar Bombeo</span>';
+      document.getElementById('m3-water-drop').setAttribute('opacity', '0');
+      renderCisternVisual();
+    }
+
+    function fillModule3Hint() {
+      document.getElementById('m3-step-1').value = 9;
+      showToast('Pista: r² · h = (1.5)² · 4 = 2.25 · 4 = 9', 'info');
+    }
+
+    function checkModule3Steps() {
+      const s1 = Number(document.getElementById('m3-step-1').value);
+      const s2 = Number(document.getElementById('m3-step-2').value);
+      const s3 = Number(document.getElementById('m3-step-3').value);
+      const res = document.getElementById('m3-steps-result');
+      res.classList.remove('hidden');
+
+      if (s1 === 9 && Math.abs(s2 - 5.4) < 0.05 && Math.abs(s3 - 6.8) <= 0.1) {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        res.textContent = 'Excelente. Calculaste el volumen cilíndrico, aplicaste la fracción 3/5 y obtuviste ≈ 6.8 horas.';
+        awardProgress('m3-steps', 30, 3, 'Insignia 03 (Cisterna cilíndrica) desbloqueada (+30 pts)');
+      } else {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-400';
+        res.textContent = 'Revisa tus operaciones: 9 × (3/5) = 5.4π ≈ 16.96 m³, y 16.96 ÷ 2.5 ≈ 6.8 h.';
+      }
+    }
+
+    let m3PracAns = 5.0;
+    function generateM3Practice() {
+      const r = [1, 2, 2.5][Math.floor(Math.random() * 3)];
+      const h = [3, 4, 5, 6][Math.floor(Math.random() * 4)];
+      const fracs = [
+        { label: '1/2', val: 0.5 },
+        { label: '3/4', val: 0.75 },
+        { label: '2/5', val: 0.4 }
+      ];
+      const f = fracs[Math.floor(Math.random() * fracs.length)];
+      const rate = [2, 3, 4][Math.floor(Math.random() * 3)];
+      const vWater = Math.PI * r * r * h * f.val;
+      m3PracAns = Number((vWater / rate).toFixed(1));
+
+      document.getElementById('m3-prac-prompt').innerHTML =
+        `Una cisterna de radio <strong>${r} m</strong> y altura <strong>${h} m</strong> está llena a <strong>${f.label}</strong> de su capacidad. Si una bomba extrae <strong>${rate} m³/h</strong>, ¿cuántas horas tarda en vaciarla?`;
+      document.getElementById('m3-prac-hint').textContent =
+        `V_agua = (${f.label}) · π · (${r})² · (${h}) ≈ ${vWater.toFixed(2)} m³. Divide entre ${rate} m³/h.`;
+      document.getElementById('m3-prac-input').value = '';
+      document.getElementById('m3-prac-feedback').classList.add('hidden');
+    }
+
+    function checkM3Practice() {
+      const val = Number(document.getElementById('m3-prac-input').value);
+      const fb = document.getElementById('m3-prac-feedback');
+      fb.classList.remove('hidden');
+      if (Math.abs(val - m3PracAns) <= 0.15) {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-emerald-100 text-emerald-900';
+        fb.textContent = `Muy bien. Tarda aproximadamente ${m3PracAns} horas.`;
+        awardProgress('m3-prac', 20, 3);
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-100 text-rose-900';
+        fb.textContent = `Casi. Recuerda multiplicar por π ≈ 3.1416 y luego dividir entre el caudal.`;
+      }
+    }
+
+    // =========================================================================
+    // 6. MODULE 4: ESCALERA CONTRA LA PARED
+    // =========================================================================
+    function updateLadderLab() {
+      const x = parseFloat(document.getElementById('m4-slider-x').value);
+      const y = Math.sqrt(100 - x * x);
+      const diff = y - x;
+
+      document.getElementById('m4-val-x').textContent = `${x.toFixed(1)} m`;
+      document.getElementById('m4-base').textContent = `${x.toFixed(2)} m`;
+      document.getElementById('m4-height').textContent = `${y.toFixed(2)} m`;
+      document.getElementById('m4-diff').textContent = `${diff >= 0 ? '+' : ''}${diff.toFixed(2)} m`;
+
+      const box = document.getElementById('m4-feedback-box');
+      const status = document.getElementById('m4-status');
+      if (Math.abs(diff - 2) < 0.05) {
+        status.innerHTML = `<strong>Exacto:</strong> Base = <strong>6 m</strong> y Altura = <strong>8 m</strong> (8 − 6 = 2 m, y 6² + 8² = 100).`;
+        box.className = 'p-4 rounded-2xl bg-emerald-100 border-2 border-sage-dark space-y-2 transition-all';
+      } else {
+        status.textContent = `Diferencia actual (y − x): ${diff.toFixed(2)} m. Busca que sea +2.00 m.`;
+        box.className = 'p-4 rounded-2xl bg-peach-light/50 border border-peach-pastel space-y-2 transition-all';
+      }
+
+      // Update SVG coordinates (origin at 60, 280; scale 24px per meter)
+      const scale = 24;
+      const pxX = 60 + x * scale;
+      const pxY = 280 - y * scale;
+
+      document.getElementById('m4-tri').setAttribute('points', `60,280 60,${pxY} ${pxX},280`);
+      document.getElementById('m4-ladder').setAttribute('x1', 60);
+      document.getElementById('m4-ladder').setAttribute('y1', pxY);
+      document.getElementById('m4-ladder').setAttribute('x2', pxX);
+      document.getElementById('m4-ladder').setAttribute('y2', 280);
+
+      document.getElementById('m4-ladder-inner').setAttribute('x1', 60);
+      document.getElementById('m4-ladder-inner').setAttribute('y1', pxY);
+      document.getElementById('m4-ladder-inner').setAttribute('x2', pxX);
+      document.getElementById('m4-ladder-inner').setAttribute('y2', 280);
+
+      document.getElementById('m4-lbl-y').setAttribute('y', (280 + pxY) / 2);
+      document.getElementById('m4-lbl-y').textContent = `${y.toFixed(1)} m`;
+      document.getElementById('m4-lbl-x').setAttribute('x', (60 + pxX) / 2);
+      document.getElementById('m4-lbl-x').textContent = `${x.toFixed(1)} m`;
+      document.getElementById('m4-lbl-h').setAttribute('x', (60 + pxX) / 2 + 12);
+      document.getElementById('m4-lbl-h').setAttribute('y', (280 + pxY) / 2 - 8);
+    }
+
+    function fillModule4Hint() {
+      document.getElementById('m4-step-1a').value = 2;
+      document.getElementById('m4-step-1b').value = 4;
+      showToast('Pista: x² + x² + 4x + 4 = 2x² + 4x + 4', 'info');
+    }
+
+    function checkModule4Steps() {
+      const s1a = Number(document.getElementById('m4-step-1a').value);
+      const s1b = Number(document.getElementById('m4-step-1b').value);
+      const s2a = Number(document.getElementById('m4-step-2a').value);
+      const s2b = Number(document.getElementById('m4-step-2b').value);
+      const s3a = Number(document.getElementById('m4-step-3a').value);
+      const s3b = Number(document.getElementById('m4-step-3b').value);
+      const res = document.getElementById('m4-steps-result');
+      res.classList.remove('hidden');
+
+      if (s1a === 2 && s1b === 4 && s2a === 48 && s2b === 6 && s3a === 6 && s3b === 8) {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        res.textContent = 'Brillante. Identificaste el triángulo 6-8-10 y distinguiste entre la base (6 m) y la altura pedida (8 m).';
+        awardProgress('m4-steps', 30, 4, 'Insignia 04 (Escalera en pared) desbloqueada (+30 pts)');
+      } else {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-400';
+        res.textContent = 'Verifica: (x + 8)(x − 6) = 0 ⟹ Base x = 6 m, y Altura = x + 2 = 8 m.';
+      }
+    }
+
+    let m4PracAns = 12;
+    function generateM4Practice() {
+      const triples = [
+        { b: 5, h: 12, hyp: 13 },
+        { b: 9, h: 12, hyp: 15 },
+        { b: 8, h: 15, hyp: 17 },
+        { b: 12, h: 16, hyp: 20 }
+      ];
+      const t = triples[Math.floor(Math.random() * triples.length)];
+      const diff = t.h - t.b;
+      m4PracAns = t.h;
+
+      document.getElementById('m4-prac-prompt').innerHTML =
+        `Una escalera de <strong>${t.hyp} m</strong> se apoya en una pared. La altura que alcanza es <strong>${diff} m mayor</strong> que la distancia de su base a la pared. ¿Qué altura alcanza?`;
+      document.getElementById('m4-prac-hint').textContent =
+        `Plantea: x² + (x + ${diff})² = ${t.hyp}² (${t.hyp * t.hyp}). Recuerda sumar ${diff} al valor de x.`;
+      document.getElementById('m4-prac-input').value = '';
+      document.getElementById('m4-prac-feedback').classList.add('hidden');
+    }
+
+    function checkM4Practice() {
+      const val = Number(document.getElementById('m4-prac-input').value);
+      const fb = document.getElementById('m4-prac-feedback');
+      fb.classList.remove('hidden');
+      if (val === m4PracAns) {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-emerald-100 text-emerald-900';
+        fb.textContent = `Exacto. La escalera alcanza una altura de ${m4PracAns} m.`;
+        awardProgress('m4-prac', 20, 4);
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-100 text-rose-900';
+        fb.textContent = `Revisa: asegúrate de responder la altura (cateto mayor) y no la base.`;
+      }
+    }
+
+    // =========================================================================
+    // 7. MODULE 5: PIRÁMIDE DE BLOQUES
+    // =========================================================================
+    let pyramidN = 3;
+    function renderPyramid() {
+      const total = (pyramidN * (pyramidN + 1) * (2 * pyramidN + 1)) / 6;
+      const lvlBlocks = pyramidN * pyramidN;
+
+      document.getElementById('m5-levels').textContent = pyramidN;
+      document.getElementById('m5-level-blocks').textContent = lvlBlocks;
+      document.getElementById('m5-total-blocks').textContent = total;
+
+      const terms = [];
+      for (let i = 1; i <= pyramidN; i++) terms.push(i * i);
+      document.getElementById('m5-series-text').textContent = `Suma: ${terms.join(' + ')} = ${total} bloques`;
+
+      const status = document.getElementById('m5-status');
+      const box = document.getElementById('m5-feedback-box');
+      if (total === 385) {
+        status.innerHTML = `<strong>Exacto:</strong> Con <strong>n = 10 niveles</strong> se usan exactamente <strong>385 bloques</strong>.`;
+        box.className = 'p-4 rounded-2xl bg-emerald-100 border-2 border-sage-dark space-y-3';
+      } else {
+        status.textContent = total < 385
+          ? `Faltan ${385 - total} bloques para llegar a 385.`
+          : `Te pasaste por ${total - 385} bloques. Quita niveles.`;
+        box.className = 'p-4 rounded-2xl bg-sage-light/60 border border-sage-pastel space-y-3';
+      }
+
+      const container = document.getElementById('m5-pyramid-visual');
+      container.innerHTML = '';
+      for (let level = 1; level <= pyramidN; level++) {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-center gap-1 transition-all';
+        const blocksToDraw = Math.min(level, 12);
+        let blocksHtml = '';
+        for (let b = 0; b < blocksToDraw; b++) {
+          blocksHtml += `<span class="w-4 h-4 sm:w-5 sm:h-5 rounded bg-amber-200 border border-amber-500 inline-block shadow-2xs"></span>`;
+        }
+        row.innerHTML = `
+          <span class="text-[10px] font-mono font-bold text-slate-400 w-10 text-right mr-1">N${level}</span>
+          <div class="flex gap-0.5">${blocksHtml}</div>
+          <span class="text-[10px] font-mono font-bold text-sage-dark w-14 ml-1">(${level * level})</span>
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function changePyramidLevels(delta) {
+      pyramidN = Math.max(1, Math.min(12, pyramidN + delta));
+      renderPyramid();
+    }
+
+    function resetPyramidLevels() {
+      pyramidN = 3;
+      renderPyramid();
+    }
+
+    function fillModule5Hint() {
+      document.getElementById('m5-step-1').value = 2310;
+      showToast('Pista: 385 × 6 = 2310', 'info');
+    }
+
+    function checkModule5Steps() {
+      const s1 = Number(document.getElementById('m5-step-1').value);
+      const s2a = Number(document.getElementById('m5-step-2a').value);
+      const s2b = Number(document.getElementById('m5-step-2b').value);
+      const s2c = Number(document.getElementById('m5-step-2c').value);
+      const res = document.getElementById('m5-steps-result');
+      res.classList.remove('hidden');
+
+      if (s1 === 2310 && s2a === 11 && s2b === 21 && s2c === 10) {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        res.textContent = 'Correcto. Comprobaste que 10 × 11 × 21 = 2310, por lo que se necesitan 10 niveles.';
+        awardProgress('m5-steps', 30, 5, 'Insignia 05 (Pirámide de bloques) desbloqueada (+30 pts)');
+      } else {
+        res.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900 border border-amber-400';
+        res.textContent = 'Revisa: para n = 10, (n + 1) = 11 y (2n + 1) = 21.';
+      }
+    }
+
+    let m5PracAns = 7;
+    function generateM5Practice() {
+      const nTarget = [5, 6, 7, 8, 9, 11][Math.floor(Math.random() * 6)];
+      const sum = (nTarget * (nTarget + 1) * (2 * nTarget + 1)) / 6;
+      m5PracAns = nTarget;
+
+      document.getElementById('m5-prac-prompt').innerHTML =
+        `En una pirámide escalonada donde cada nivel <strong>n</strong> tiene <strong>n²</strong> bloques, se utilizaron en total <strong>${sum} bloques</strong>. ¿Cuántos niveles tiene la pirámide?`;
+      document.getElementById('m5-prac-hint').textContent =
+        `Fórmula: n(n + 1)(2n + 1) = ${sum * 6}. Estima n³ ≈ ${(sum * 6) / 2}.`;
+      document.getElementById('m5-prac-input').value = '';
+      document.getElementById('m5-prac-feedback').classList.add('hidden');
+    }
+
+    function checkM5Practice() {
+      const val = Number(document.getElementById('m5-prac-input').value);
+      const fb = document.getElementById('m5-prac-feedback');
+      fb.classList.remove('hidden');
+      if (val === m5PracAns) {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-emerald-100 text-emerald-900';
+        fb.textContent = `Excelente. Se requieren ${m5PracAns} niveles.`;
+        awardProgress('m5-prac', 20, 5);
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold bg-rose-100 text-rose-900';
+        fb.textContent = `Intenta de nuevo probando valores enteros cercanos a la raíz cúbica de ${(m5PracAns*(m5PracAns+1)*(2*m5PracAns+1))/2}.`;
+      }
+    }
+
+    // =========================================================================
+    // 8. ARENA DE MINI-JUEGOS (3 GAMES)
+    // =========================================================================
+    function switchGame(gId) {
+      document.querySelectorAll('.game-panel').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`game-panel-${gId}`).classList.remove('hidden');
+
+      [1, 2, 3].forEach(id => {
+        const btn = document.getElementById(`game-tab-${id}`);
+        if (id === gId) {
+          btn.className = 'game-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold transition-all bg-lavender-dark text-white shadow-sm cursor-pointer';
+        } else {
+          btn.className = 'game-tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition-all bg-cream text-slate-600 border border-stone-200 hover:bg-stone-100 cursor-pointer';
+        }
+      });
+    }
+
+    // --- GAME 1: DETECTIVE DE ECUACIONES ---
+    const g1Pairs = [
+      { id: 'p1', left: '01. Cubo cuya arista crece 2 cm y suma 218 cm³', right: '(x + 2)³ − x³ = 218  |  Solo x > 0 (longitud positiva)' },
+      { id: 'p2', left: '02. Caja recortada de lámina cuadrada de 20 cm', right: 'x(20 − 2x)² = 576  |  Restricción: 0 < x < 10' },
+      { id: 'p3', left: '03. Cisterna llena a 3/5 vaciada a 2.5 m³/h', right: 't = (3/5 · πr²h) ÷ 2.5  |  Resultado en horas' },
+      { id: 'p4', left: '04. Escalera de 10 m con altura 2 m mayor a base', right: 'x² + (x + 2)² = 100  |  Descarta raíz negativa' },
+      { id: 'p5', left: '05. Pirámide de n niveles con n² bloques por nivel', right: 'n(n + 1)(2n + 1)/6 = 385  |  n entero positivo' }
+    ];
+    let g1SelectedLeft = null;
+    let g1Matched = new Set();
+    let g1Streak = 0;
+
+    function initGame1() {
+      g1SelectedLeft = null;
+      g1Matched.clear();
+      g1Streak = 0;
+      document.getElementById('g1-streak').textContent = '0';
+      document.getElementById('g1-feedback').textContent = 'Haz clic en una tarjeta izquierda para comenzar a emparejar.';
+
+      const leftList = document.getElementById('g1-left-list');
+      const rightList = document.getElementById('g1-right-list');
+      leftList.innerHTML = '';
+      rightList.innerHTML = '';
+
+      const shuffledRight = [...g1Pairs].sort(() => Math.random() - 0.5);
+
+      g1Pairs.forEach(item => {
+        const btn = document.createElement('button');
+        btn.id = `g1-l-${item.id}`;
+        btn.className = 'w-full text-left p-3.5 rounded-2xl border-2 border-stone-200 bg-cream hover:border-lavender-dark text-sm font-semibold text-charcoal transition-all cursor-pointer';
+        btn.textContent = item.left;
+        btn.onclick = () => selectG1Left(item.id);
+        leftList.appendChild(btn);
+      });
+
+      shuffledRight.forEach(item => {
+        const btn = document.createElement('button');
+        btn.id = `g1-r-${item.id}`;
+        btn.className = 'w-full text-left p-3.5 rounded-2xl border-2 border-stone-200 bg-white hover:border-sky-dark font-mono text-xs sm:text-sm font-bold text-slate-700 transition-all cursor-pointer';
+        btn.textContent = item.right;
+        btn.onclick = () => selectG1Right(item.id);
+        rightList.appendChild(btn);
+      });
+    }
+
+    function selectG1Left(id) {
+      if (g1Matched.has(id)) return;
+      g1SelectedLeft = id;
+      g1Pairs.forEach(p => {
+        if (!g1Matched.has(p.id)) {
+          const el = document.getElementById(`g1-l-${p.id}`);
+          el.className = p.id === id
+            ? 'w-full text-left p-3.5 rounded-2xl border-2 border-lavender-dark bg-lavender-light text-sm font-bold text-lavender-dark transition-all cursor-pointer'
+            : 'w-full text-left p-3.5 rounded-2xl border-2 border-stone-200 bg-cream hover:border-lavender-dark text-sm font-semibold text-charcoal transition-all cursor-pointer';
+        }
+      });
+    }
+
+    function selectG1Right(rightId) {
+      if (!g1SelectedLeft || g1Matched.has(rightId)) return;
+      const fb = document.getElementById('g1-feedback');
+      if (g1SelectedLeft === rightId) {
+        g1Matched.add(rightId);
+        g1Streak++;
+        document.getElementById('g1-streak').textContent = g1Streak;
+
+        const lEl = document.getElementById(`g1-l-${rightId}`);
+        const rEl = document.getElementById(`g1-r-${rightId}`);
+        lEl.className = 'w-full text-left p-3.5 rounded-2xl border-2 border-emerald-400 bg-emerald-50 text-sm font-bold text-emerald-900 opacity-75';
+        rEl.className = 'w-full text-left p-3.5 rounded-2xl border-2 border-emerald-400 bg-emerald-50 font-mono text-xs sm:text-sm font-bold text-emerald-900 opacity-75';
+
+        g1SelectedLeft = null;
+        if (g1Matched.size === g1Pairs.length) {
+          fb.innerHTML = '<strong>Completado:</strong> Conectaste todos los modelos y sus restricciones de dominio.';
+          awardProgress('game-1', 25, 6, 'Completaste Detective de Ecuaciones (+25 pts)');
+        } else {
+          fb.textContent = `Pareja correcta. Racha actual: ${g1Streak}.`;
+        }
+      } else {
+        g1Streak = 0;
+        document.getElementById('g1-streak').textContent = '0';
+        fb.textContent = 'No coincide. Observa las variables y la restricción física de cada problema.';
+      }
+    }
+
+    // --- GAME 2: CONSTRUCTOR DE PASOS ---
+    const g2Scenarios = [
+      {
+        title: 'Problema 1: Cubo que crece',
+        steps: [
+          'Plantear la diferencia de volúmenes: (x + 2)³ − x³ = 218',
+          'Desarrollar el binomio al cubo y cancelar x³: 6x² + 12x − 210 = 0',
+          'Dividir toda la ecuación entre 6: x² + 2x − 35 = 0',
+          'Factorizar (x + 7)(x − 5) = 0 y elegir x = 5 cm (descartando −7)'
+        ]
+      },
+      {
+        title: 'Problema 2: Caja sin tapa',
+        steps: [
+          'Expresar el volumen: x(20 − 2x)² = 576 con dominio 0 < x < 10',
+          'Comprobar la raíz entera x = 4 y dividir entre (x − 4)',
+          'Aplicar fórmula general a x² − 16x + 36 = 0 ⟹ x = 8 ± 2√7',
+          'Conservar x = 4 cm y x ≈ 2.71 cm; descartar 13.29 cm por ser > 10'
+        ]
+      },
+      {
+        title: 'Problema 4: Escalera en pared',
+        steps: [
+          'Aplicar Teorema de Pitágoras: x² + (x + 2)² = 10²',
+          'Expandir y simplificar entre 2: x² + 2x − 48 = 0',
+          'Factorizar (x + 8)(x − 6) = 0 para hallar la base x = 6 m',
+          'Sumar 2 m a la base para obtener la altura alcanzada: 8 m'
+        ]
+      },
+      {
+        title: 'Problema 5: Pirámide de bloques',
+        steps: [
+          'Igualar la suma de cuadrados a 385: n(n + 1)(2n + 1)/6 = 385',
+          'Multiplicar por 6 ambos lados: n(n + 1)(2n + 1) = 2310',
+          'Estimar el orden cúbico 2n³ ≈ 2310 ⟹ n ≈ 10',
+          'Verificar el producto 10 × 11 × 21 = 2310 ⟹ n = 10 niveles'
+        ]
+      }
+    ];
+    let g2UserOrder = [];
+
+    function initGame2() {
+      const idx = Number(document.getElementById('g2-problem-select').value);
+      const scenario = g2Scenarios[idx];
+      g2UserOrder = [];
+      document.getElementById('g2-feedback').classList.add('hidden');
+
+      const pool = document.getElementById('g2-pool');
+      pool.innerHTML = '';
+      const scrambled = scenario.steps.map((text, i) => ({ text, origIdx: i })).sort(() => Math.random() - 0.5);
+
+      scrambled.forEach(item => {
+        const btn = document.createElement('button');
+        btn.id = `g2-pool-item-${item.origIdx}`;
+        btn.className = 'w-full text-left p-3 rounded-xl bg-white border border-stone-200 hover:border-sky-dark text-xs sm:text-sm font-medium text-charcoal shadow-2xs transition-all cursor-pointer';
+        btn.textContent = item.text;
+        btn.onclick = () => addStepToG2(item.origIdx, item.text);
+        pool.appendChild(btn);
+      });
+      renderG2Target();
+    }
+
+    function addStepToG2(origIdx, text) {
+      if (g2UserOrder.some(s => s.origIdx === origIdx)) return;
+      g2UserOrder.push({ origIdx, text });
+      const poolBtn = document.getElementById(`g2-pool-item-${origIdx}`);
+      if (poolBtn) poolBtn.classList.add('opacity-40', 'pointer-events-none');
+      renderG2Target();
+    }
+
+    function renderG2Target() {
+      const target = document.getElementById('g2-target');
+      target.innerHTML = '';
+      if (g2UserOrder.length === 0) {
+        target.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-10">Haz clic en los pasos de la izquierda en el orden lógico correcto.</p>';
+        return;
+      }
+      g2UserOrder.forEach((step, idx) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 rounded-xl bg-white border border-sky-pastel text-xs sm:text-sm font-semibold text-charcoal flex items-center gap-2.5';
+        div.innerHTML = `<span class="w-6 h-6 rounded-full bg-sky-dark text-white flex items-center justify-center text-xs shrink-0">${idx + 1}</span><span>${step.text}</span>`;
+        target.appendChild(div);
+      });
+    }
+
+    function checkGame2() {
+      const fb = document.getElementById('g2-feedback');
+      fb.classList.remove('hidden');
+      if (g2UserOrder.length < 4) {
+        fb.className = 'p-4 rounded-2xl text-sm font-semibold bg-amber-100 text-amber-900';
+        fb.textContent = 'Agrega los 4 pasos antes de validar.';
+        return;
+      }
+      const isCorrect = g2UserOrder.every((s, idx) => s.origIdx === idx);
+      if (isCorrect) {
+        fb.className = 'p-4 rounded-2xl text-sm font-semibold bg-emerald-100 text-emerald-900 border border-emerald-400';
+        fb.textContent = 'Orden lógico impecable. Así se estructura una demostración algebraica rigurosa.';
+        awardProgress('game-2', 25, 6, 'Completaste Constructor de Pasos (+25 pts)');
+      } else {
+        fb.className = 'p-4 rounded-2xl text-sm font-semibold bg-rose-100 text-rose-900 border border-rose-300';
+        fb.textContent = 'El orden aún no es lógico. Recuerda: 1) Plantear ecuación, 2) Expandir/simplificar, 3) Resolver raíces, 4) Interpretar físicamente.';
+      }
+    }
+
+    // --- GAME 3: DESAFÍO CONTRARRELOJ ---
+    const g3Questions = [
+      {
+        q: 'En el problema del cubo que crece (x + 2)³ − x³ = 218, ¿por qué se descarta la raíz x = −7?',
+        hint: 'Piensa en qué representa la variable x en el mundo físico.',
+        options: ['Porque −7 es impar', 'Porque una longitud geométrica no puede ser negativa', 'Porque 7³ es mayor que 218', 'Porque el cubo se vuelve cilindro'],
+        ans: 1
+      },
+      {
+        q: 'Si cortas cuadrados de lado x en las esquinas de una lámina de 20 cm × 20 cm, ¿cuál es el dominio válido para x?',
+        hint: 'No puedes cortar más de la mitad de cada lado.',
+        options: ['0 < x < 20', 'x > 10', '0 < x < 10', 'x = 13.29'],
+        ans: 2
+      },
+      {
+        q: 'Una cisterna cilíndrica tiene radio 2 m y altura 5 m. ¿Cuál es su volumen total en términos de π?',
+        hint: 'Usa V = π · r² · h',
+        options: ['10π m³', '20π m³', '25π m³', '40π m³'],
+        ans: 1
+      },
+      {
+        q: 'En el problema de la escalera de 10 m, si la base mide 6 m y la altura 8 m, ¿qué teorema confirma que forman un ángulo recto?',
+        hint: '6² + 8² = 36 + 64 = 100 = 10²',
+        options: ['Teorema de Tales', 'Teorema de Pitágoras', 'Fórmula de Herón', 'Ley de Cosenos'],
+        ans: 1
+      },
+      {
+        q: '¿Cuántos bloques tiene únicamente el nivel n = 7 de una pirámide escalonada cuadrada?',
+        hint: 'Cada nivel n tiene n² bloques.',
+        options: ['14 bloques', '28 bloques', '49 bloques', '140 bloques'],
+        ans: 2
+      }
+    ];
+
+    let g3Index = 0;
+    let g3Score = 0;
+    let g3TimeLeft = 90;
+    let g3TimerInterval = null;
+
+    function startGame3() {
+      g3Index = 0;
+      g3Score = 0;
+      g3TimeLeft = 90;
+      document.getElementById('g3-score').textContent = '0';
+      document.getElementById('g3-timer').textContent = '90';
+      document.getElementById('g3-start-screen').classList.add('hidden');
+      document.getElementById('g3-end-screen').classList.add('hidden');
+      document.getElementById('g3-quiz-screen').classList.remove('hidden');
+
+      clearInterval(g3TimerInterval);
+      g3TimerInterval = setInterval(() => {
+        g3TimeLeft--;
+        document.getElementById('g3-timer').textContent = g3TimeLeft;
+        if (g3TimeLeft <= 0) {
+          endGame3();
+        }
+      }, 1000);
+
+      renderG3Question();
+    }
+
+    function renderG3Question() {
+      const qObj = g3Questions[g3Index];
+      document.getElementById('g3-q-num').textContent = g3Index + 1;
+      document.getElementById('g3-q-text').textContent = qObj.q;
+      document.getElementById('g3-hint-box').classList.add('hidden');
+      document.getElementById('g3-hint-box').textContent = `Pista: ${qObj.hint}`;
+      document.getElementById('g3-q-feedback').classList.add('hidden');
+
+      const optsDiv = document.getElementById('g3-options');
+      optsDiv.innerHTML = '';
+      qObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'p-3.5 rounded-xl bg-white border-2 border-stone-200 hover:border-lavender-dark text-left text-sm font-semibold text-charcoal transition-all cursor-pointer';
+        btn.textContent = opt;
+        btn.onclick = () => answerGame3(idx);
+        optsDiv.appendChild(btn);
+      });
+    }
+
+    function showGame3Hint() {
+      document.getElementById('g3-hint-box').classList.remove('hidden');
+    }
+
+    function answerGame3(selectedIdx) {
+      const qObj = g3Questions[g3Index];
+      const fb = document.getElementById('g3-q-feedback');
+      fb.classList.remove('hidden');
+
+      if (selectedIdx === qObj.ans) {
+        g3Score += 20;
+        document.getElementById('g3-score').textContent = g3Score;
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold text-center bg-emerald-100 text-emerald-900';
+        fb.textContent = 'Correcto (+20 pts)';
+      } else {
+        fb.className = 'p-3.5 rounded-xl text-sm font-semibold text-center bg-rose-100 text-rose-900';
+        fb.textContent = `Respuesta correcta: ${qObj.options[qObj.ans]}`;
+      }
+
+      setTimeout(() => {
+        g3Index++;
+        if (g3Index < g3Questions.length) {
+          renderG3Question();
+        } else {
+          endGame3();
+        }
+      }, 1100);
+    }
+
+    function endGame3() {
+      clearInterval(g3TimerInterval);
+      document.getElementById('g3-quiz-screen').classList.add('hidden');
+      document.getElementById('g3-end-screen').classList.remove('hidden');
+      document.getElementById('g3-end-summary').textContent = `Obtuviste ${g3Score} de 100 puntos posibles con ${g3TimeLeft} segundos restantes.`;
+      if (g3Score >= 60) {
+        awardProgress('game-3', 30, 6, 'Insignia de Maestría desbloqueada (+30 pts)');
+      }
+    }
+
+    // =========================================================================
+    // 9. INITIALIZATION ON WINDOW LOAD
+    // =========================================================================
+    window.onload = function () {
+      switchModule(1);
+      for (let m = 1; m <= 5; m++) {
+        switchSubTab(m, 'A');
+      }
+      updateCubeLab();
+      generateM1Practice();
+
+      updateBoxLab();
+      generateM2Practice();
+
+      renderCisternVisual();
+      generateM3Practice();
+
+      updateLadderLab();
+      generateM4Practice();
+
+      renderPyramid();
+      generateM5Practice();
+
+      switchGame(1);
+      initGame1();
+      initGame2();
+
+      // Check if it is the user's first visit to offer the optional tutorial
+      checkFirstVisitTutorial();
+    };
+  </script>
+</body>
+</html>
